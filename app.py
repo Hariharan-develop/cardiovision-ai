@@ -9,10 +9,18 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_DIR = os.path.join(BASE_DIR, "backend")
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
+
 try:
-    from shap_service import get_all_shap_explanations
+    from backend.shap_service import get_all_shap_explanations
 except ImportError:
-    get_all_shap_explanations = None
+    try:
+        from shap_service import get_all_shap_explanations
+    except ImportError:
+        get_all_shap_explanations = None
 
 def ensure_local_api():
     try:
