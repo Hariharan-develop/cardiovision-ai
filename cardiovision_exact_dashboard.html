@@ -3367,18 +3367,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{display:none!important;width:0!i
         </div>
       </div>
       <div style="background:#080d1a;border-radius:18px;overflow:hidden;border:1px solid #1a2b4a;height:calc(100vh - 160px);min-height:640px;max-height:840px;position:relative;">
-        <iframe id="viewerIframe" srcdoc="{HEART_VIEWER_SRCDOC}" style="width:100%;height:100%;border:none;display:block;"></iframe>
-        <script>
-          (function() {
-            try {
-              var f = document.getElementById('viewerIframe');
-              if (f && (!f.getAttribute('srcdoc') || f.getAttribute('srcdoc').indexOf('{HEART_VIEWER_SRCDOC}') !== -1)) {
-                f.removeAttribute('srcdoc');
-                f.src = '/viewer.html';
-              }
-            } catch(e) {}
-          })();
-        </script>
+        <iframe id="viewerIframe" src="/viewer.html" style="width:100%;height:100%;border:none;display:block;" title="CardioVision 3D Anatomical Heart Viewer"></iframe>
       </div>
     </div>
   </div>

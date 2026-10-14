@@ -219,28 +219,8 @@ class PredictionAPIHandler(BaseHTTPRequestHandler):
                 return
         elif clean_path in ["/dashboard", "/cardiovision_exact_dashboard.html"]:
             dash_path = os.path.join(BASE_DIR, "cardiovision_exact_dashboard.html")
-            viewer_path = os.path.join(BASE_DIR, "components", "heart_viewer.html")
-            try:
-                with open(dash_path, "r", encoding="utf-8") as df:
-                    dash_html = df.read()
-                if os.path.exists(viewer_path):
-                    with open(viewer_path, "r", encoding="utf-8") as vf:
-                        v_raw = vf.read()
-                    import html as html_lib
-                    v_srcdoc = html_lib.escape(v_raw)
-                    dash_html = dash_html.replace("{HEART_VIEWER_SRCDOC}", v_srcdoc)
-                    dash_html = dash_html.replace("{{HEART_VIEWER_SRCDOC}}", v_srcdoc)
-                b_content = dash_html.encode("utf-8")
-                self.send_response(200)
-                self.send_header("Content-Type", "text/html; charset=utf-8")
-                self.send_header("Content-Length", str(len(b_content)))
-                self._set_cors()
-                self.end_headers()
-                self.wfile.write(b_content)
-                return
-            except Exception:
-                self._serve_file(dash_path, "text/html; charset=utf-8")
-                return
+            self._serve_file(dash_path, "text/html; charset=utf-8")
+            return
         elif any(clean_path.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.ico']):
             img_name = os.path.basename(clean_path)
             candidates = [
