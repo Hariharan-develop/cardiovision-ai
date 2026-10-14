@@ -1,0 +1,37 @@
+id="view-results" class="mainView" style="display:none;">
+    <div class="viewContainer">
+      <div class="viewTitleBox">
+        <svg viewBox="0 0 24 24" style="width:36px;height:36px;color:#1759e8;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V5M3 20h18"/><path d="m6 15 4-4 3 2 5-6"/><path d="M17 7h2v2"/></svg>
+        <div>
+          <h2>Coronary Disease Burden &amp; Revascularization Analysis</h2>
+          <p>Multi-vessel risk assessment and guideline-directed clinical decision support.</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div class="tableCard">
+          <h3 style="font-size:22px;color:#0b2b5b;margin-top:0;">Coronary Stenosis Stratification</h3>
+          <p style="font-size:16px;color:#4c6993;line-height:1.5;">Based on the patient's 57 clinical biomarkers, the ensemble ML models calculated the following vessel-specific probabilities:</p>
+          <ul style="font-size:17px;line-height:1.8;color:#1c3e6b;padding-left:22px;">
+            <li><b>Overall CAD:</b> <span style="color:#ff2437;font-weight:700;">{CAD_RISK}%</span> ({CAD_LABEL})</li>
+            <li><b>Left Anterior Descending (LAD):</b> <span style="color:#2d86ea;font-weight:700;">{LAD_RISK}%</span> ({LAD_LABEL}) - Anterior wall perfusion</li>
+            <li><b>Left Circumflex (LCX):</b> <span style="color:#19b77c;font-weight:700;">{LCX_RISK}%</span> ({LCX_LABEL}) - Lateral myocardial perfusion</li>
+            <li><b>Right Coronary Artery (RCA):</b> <span style="color:#ff9700;font-weight:700;">{RCA_RISK}%</span> ({RCA_LABEL}) - Inferior wall &amp; AV node perfusion</li>
+          </ul>
+        </div>
+        <div class="tableCard">
+          <h3 style="font-size:22px;color:#0b2b5b;margin-top:0;">Clinical Recommendations</h3>
+          <div style="background:#fff7ea;border-left:5px solid #ff9700;padding:14px 18px;border-radius:8px;font-size:16px;color:#7a4b00;margin-bottom:14px;">
+            <b>High Probability of Multi-Vessel Involvement</b>
+          </div>
+          <ol style="font-size:16px;line-height:1.7;color:#234470;padding-left:20px;">
+            <li>Recommend formal diagnostic coronary computed tomography angiography (CCTA) or invasive coronary angiography (ICA).</li>
+            <li>Assess functional myocardial ischemia via stress echocardiography or SPECT/PET myocardial perfusion imaging.</li>
+            <li>Initiate or optimize Guideline-Directed Medical Therapy (GDMT): High-intensity statin therapy, antiplatelet therapy, and strict blood pressure control.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 3D VISUALIZATION VIEW -->
+  <div 

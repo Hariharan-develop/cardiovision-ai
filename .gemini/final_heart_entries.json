@@ -1,0 +1,638 @@
+[
+  {
+    "group": "conduction_system",
+    "id": "MM419",
+    "label": "Sinuatrial (SA) node",
+    "filename": "MM419_BP51825_FMA9477_Sinuatrial node.obj"
+  },
+  {
+    "group": "lad",
+    "id": "MM420",
+    "label": "LAD trunk - proximal segment",
+    "filename": "MM420_BP51969_FMA74912_Trunk of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM422",
+    "label": "LAD diagonal branch 1 (D1)",
+    "filename": "MM422_BP51972_FMA3860_Diagonal branch of anterior descending branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM423",
+    "label": "LAD diagonal branch 2 (D2)",
+    "filename": "MM423_BP51965_FMA3888_Second left anterior branch of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad",
+    "id": "MM424",
+    "label": "LAD trunk - mid segment",
+    "filename": "MM424_BP51969_FMA74912_Trunk of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad",
+    "id": "MM425",
+    "label": "LAD trunk - distal segment",
+    "filename": "MM425_BP51969_FMA74912_Trunk of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lcx",
+    "id": "MM426",
+    "label": "LCX circumflex trunk - proximal segment",
+    "filename": "MM426_BP51973_FMA74923_Trunk of circumflex branch of left coronary artery.obj"
+  },
+  {
+    "group": "lcx_branches",
+    "id": "MM428",
+    "label": "LCX posterior ventricular branch",
+    "filename": "MM428_BP51937_FMA3914_First posterior ventricular branch of circumflex coronary artery.obj"
+  },
+  {
+    "group": "lcx_branches",
+    "id": "MM430",
+    "label": "LCX posterior interventricular branch (PDA in left-dominant)",
+    "filename": "MM430_BP58390_FMA79742_Trunk of posterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM431",
+    "label": "LAD anterior septal branch 1 (S1)",
+    "filename": "MM431_BP51970_FMA3893_Anterior septal branch of anterior interventricular artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM432",
+    "label": "LAD diagonal branch 3 (D3)",
+    "filename": "MM432_BP51962_FMA3890_Third left anterior branch of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM433",
+    "label": "LAD anterior septal branch 2 (S2)",
+    "filename": "MM433_BP51970_FMA3893_Anterior septal branch of anterior interventricular artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM434",
+    "label": "LAD anterior septal branch 3 (S3)",
+    "filename": "MM434_BP51970_FMA3893_Anterior septal branch of anterior interventricular artery.obj"
+  },
+  {
+    "group": "rca",
+    "id": "MM436",
+    "label": "RCA trunk - mid segment",
+    "filename": "MM436_BP51977_FMA3802_Trunk of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM437",
+    "label": "RCA anterior ventricular branch",
+    "filename": "MM437_BP51980_FMA3815_First anterior ventricular branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM438",
+    "label": "RCA sinoatrial (SA) nodal branch",
+    "filename": "MM438_BP51922_FMA3823_Sinoatrial nodal branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca",
+    "id": "MM439",
+    "label": "RCA trunk - distal segment",
+    "filename": "MM439_BP51977_FMA3802_Trunk of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM440",
+    "label": "RCA acute marginal branch",
+    "filename": "MM440_BP51950_FMA3818_Marginal branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM441",
+    "label": "RCA conus branch (infundibular)",
+    "filename": "MM441_BP51955_FMA3807_Conus branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM443",
+    "label": "RCA atrioventricular (AV) nodal branch",
+    "filename": "MM443_BP51952_FMA3851_Atrioventricular node branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM444",
+    "label": "RCA posterior ventricular branch",
+    "filename": "MM444_BP51956_FMA3837_First posterior ventricular branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM445",
+    "label": "RCA anterior atrial branch",
+    "filename": "MM445_BP51957_FMA3829_Anterior atrial branch of right coronary artery.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM446",
+    "label": "Anterior cardiac vein",
+    "filename": "MM446_BP58391_FMA76767_Anterior cardiac vein.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM447",
+    "label": "Great cardiac vein (anterior IV sulcus segment)",
+    "filename": "MM447_BP51947_FMA4707_Great cardiac vein.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM448",
+    "label": "Great cardiac vein (coronary sulcus tributary)",
+    "filename": "MM448_BP51947_FMA4707_Great cardiac vein.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM449",
+    "label": "Coronary sinus (main trunk)",
+    "filename": "MM449_BP51951_FMA4706_Coronary sinus.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM451",
+    "label": "Right marginal vein",
+    "filename": "MM451_BP51932_FMA4716_Right marginal vein.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM452",
+    "label": "Small cardiac vein",
+    "filename": "MM452_BP51938_FMA4714_Small cardiac vein.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM456",
+    "label": "Lateral wall of left atrium",
+    "filename": "MM456_BP51862_FMA9306_Lateral wall of left atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM458",
+    "label": "Septal wall of left atrium",
+    "filename": "MM458_BP51886_FMA84095_Septal wall of left atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM459",
+    "label": "Wall of left auricle (Left atrial appendage)",
+    "filename": "MM459_BP51840_FMA9547_Wall of left auricle.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM460",
+    "label": "Superior wall of left atrium",
+    "filename": "MM460_BP51866_FMA9562_Superior wall of left atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM461",
+    "label": "Wall of right auricle proper (Right atrial appendage)",
+    "filename": "MM461_BP51819_FMA49299_Wall of right auricle proper.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM462",
+    "label": "Crista terminalis",
+    "filename": "MM462_BP51838_FMA9236_Crista terminalis.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM463",
+    "label": "Valve of inferior vena cava (Eustachian valve)",
+    "filename": "MM463_BP51847_FMA9240_Valve of inferior vena cava.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM466",
+    "label": "Pectinate muscle of right auricle",
+    "filename": "MM466_BP51829_FMA49298_Pectinate muscle of right auricle.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM467",
+    "label": "Tendon of Todaro",
+    "filename": "MM467_BP51841_FMA9277_Tendon of Todaro.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM474",
+    "label": "Free wall of left ventricle (LV free wall)",
+    "filename": "MM474_BP51876_FMA84850_Free wall of left ventricle.obj"
+  },
+  {
+    "group": "great_vessels",
+    "id": "MM506",
+    "label": "Ascending aorta proper",
+    "filename": "MM506_BP51985_FMA23733_Ascending aorta proper.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM514",
+    "label": "Aortic annulus - Right posterior fibrous scallop",
+    "filename": "MM514_BP51916_FMA84617_Right posterior semilunar fibrous scallop of aortic valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM515",
+    "label": "Aortic annulus - Left posterior fibrous scallop",
+    "filename": "MM515_BP51913_FMA84616_Left posterior semilunar fibrous scallop of aortic valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM516",
+    "label": "Aortic annulus - Anterior fibrous scallop",
+    "filename": "MM516_BP51915_FMA84618_Anterior semilunar fibrous scallop of aortic valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM517",
+    "label": "Fibrous ring of aortic valve (segment 1)",
+    "filename": "MM517_BP51924_FMA9502_Fibrous ring of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM519",
+    "label": "Aortic valve - Right posterior cusp",
+    "filename": "MM519_BP51879_FMA7252_Right posterior cusp of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM520",
+    "label": "Fibrous ring of aortic valve (segment 2)",
+    "filename": "MM520_BP51924_FMA9502_Fibrous ring of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM521",
+    "label": "Aortic valve - Left posterior cusp",
+    "filename": "MM521_BP51864_FMA7254_Left posterior cusp of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM524",
+    "label": "Aortic valve - Anterior cusp",
+    "filename": "MM524_BP51927_FMA7253_Anterior cusp of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM526",
+    "label": "Left fibrous trigone of heart",
+    "filename": "MM526_BP51892_FMA9508_Left fibrous trigone of heart.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM529",
+    "label": "Fibrous ring of mitral valve (Mitral annulus)",
+    "filename": "MM529_BP51899_FMA9498_Fibrous ring of mitral valve.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM532",
+    "label": "Septomarginal trabecula (Moderator band)",
+    "filename": "MM532_BP51848_FMA7272_Septomarginal trabecula.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM534",
+    "label": "Mural limb of supraventricular crest (Crista supraventricularis)",
+    "filename": "MM534_BP51828_FMA13258_Mural limb of supraventricular crest.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM537",
+    "label": "Septal papillary muscle of right ventricle",
+    "filename": "MM537_BP51810_FMA7262_Septal papillary muscle of right ventricle.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM538",
+    "label": "Wall of outflow part of right ventricle (RV infundibulum)",
+    "filename": "MM538_BP51878_FMA49208_Wall of outflow part of right ventricle.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM541",
+    "label": "Mitral valve - anterior leaflet",
+    "filename": "MM541_BP51877_FMA7242_Anterior leaflet of mitral valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM542",
+    "label": "Mitral valve - posterior leaflet",
+    "filename": "MM542_BP51793_FMA7243_Posterior leaflet of mitral valve.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM550",
+    "label": "Anterior papillary muscle of right ventricle",
+    "filename": "MM550_BP51806_FMA7260_Anterior papillary muscle of right ventricle.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM551",
+    "label": "Posterior papillary muscle of right ventricle",
+    "filename": "MM551_BP51803_FMA7261_Posterior papillary muscle of right ventricle.obj"
+  },
+  {
+    "group": "rca",
+    "id": "MM556",
+    "label": "RCA trunk - proximal (ostium to acute margin)",
+    "filename": "MM556_BP51977_FMA3802_Trunk of right coronary artery.obj"
+  },
+  {
+    "group": "left_coronary_stem",
+    "id": "MM557",
+    "label": "Left coronary stem (Left Main / LM trunk)",
+    "filename": "MM557_BP58405_FMA4685_Stem of left coronary artery.obj"
+  },
+  {
+    "group": "great_vessels",
+    "id": "MM558",
+    "label": "Wall of bulb of aorta (Aortic root & sinuses of Valsalva)",
+    "filename": "MM558_BP51975_FMA15098_Wall of bulb of aorta.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM559",
+    "label": "Anterior wall proper of right atrium",
+    "filename": "MM559_BP51843_FMA49285_Anterior wall proper of right atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM560",
+    "label": "Lateral wall proper of right atrium",
+    "filename": "MM560_BP51837_FMA49286_Lateral wall proper of right atrium.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM562",
+    "label": "Valve of coronary sinus (Thebesian valve)",
+    "filename": "MM562_BP51846_FMA9242_Valve of coronary sinus.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM563",
+    "label": "Septal limb of supraventricular crest",
+    "filename": "MM563_BP51852_FMA13257_Septal limb of supraventricular crest.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM564",
+    "label": "Trabeculae carneae of right ventricle",
+    "filename": "MM564_BP51832_FMA7270_Trabecula carnea of right ventricle.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM568",
+    "label": "Membranous part of interventricular septum proper",
+    "filename": "MM568_BP51893_FMA83468_Membranous part of interventricular septum proper.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM570",
+    "label": "Tricuspid valve - posterior leaflet",
+    "filename": "MM570_BP51920_FMA7239_Posterior leaflet of tricuspid valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM572",
+    "label": "Anulus proper of tricuspid valve",
+    "filename": "MM572_BP51918_FMA85237_Anulus proper of tricuspid valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM573",
+    "label": "Tricuspid valve - septal leaflet",
+    "filename": "MM573_BP51943_FMA7240_Septal leaflet of tricuspid valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM575",
+    "label": "Tricuspid valve - anterior leaflet",
+    "filename": "MM575_BP51930_FMA7238_Anterior leaflet of tricuspid valve.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM577",
+    "label": "Right bundle branch of AV bundle",
+    "filename": "MM577_BP51824_FMA9486_Right branch of atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM578",
+    "label": "Left bundle branch - Posterior division",
+    "filename": "MM578_BP51790_FMA9489_Posterior division of left branch of atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM579",
+    "label": "Left bundle branch - Septal division",
+    "filename": "MM579_BP51789_FMA83331_Septal division of left branch of atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM580",
+    "label": "Left bundle branch - Anterior division",
+    "filename": "MM580_BP51788_FMA9488_Anterior division of left branch of atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM582",
+    "label": "Posterior internodal tract (Thorel)",
+    "filename": "MM582_BP51827_FMA9483_Posterior internodal tract.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM583",
+    "label": "Middle internodal tract (Wenckebach)",
+    "filename": "MM583_BP51818_FMA9482_Middle internodal tract.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM584",
+    "label": "Atrial branch (Bachmann bundle)",
+    "filename": "MM584_BP51831_FMA84578_Atrial branch of anterior internodal tract.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM585",
+    "label": "Anterior internodal tract",
+    "filename": "MM585_BP51875_FMA9480_Anterior internodal tract.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM586",
+    "label": "Atrioventricular bundle (Bundle of His)",
+    "filename": "MM586_BP51792_FMA9484_Atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM587",
+    "label": "Atrioventricular (AV) node",
+    "filename": "MM587_BP51791_FMA9478_Atrioventricular node.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM590",
+    "label": "Septal wall (inferior) of right atrium",
+    "filename": "MM590_BP51888_FMA84094_Septal wall of right atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM591",
+    "label": "Septal wall (superior) of right atrium",
+    "filename": "MM591_BP51888_FMA84094_Septal wall of right atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM592",
+    "label": "Interatrial septum (proper)",
+    "filename": "MM592_BP51898_FMA7108_Interatrial septum.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM593",
+    "label": "Interatrial septum (fossa ovalis region)",
+    "filename": "MM593_BP51898_FMA7108_Interatrial septum.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM594",
+    "label": "Interventricular septum (muscular junction)",
+    "filename": "MM594_BP51936_FMA7134_Muscular part of interventricular septum.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM595",
+    "label": "Atrioventricular septum",
+    "filename": "MM595_BP51903_FMA7136_Atrioventricular septum.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM596",
+    "label": "Right fibrous trigone of heart",
+    "filename": "MM596_BP51912_FMA9505_Right fibrous trigone of heart.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM598",
+    "label": "Wall of inflow part of right ventricle (RV inflow)",
+    "filename": "MM598_BP51861_FMA49207_Wall of inflow part of right ventricle.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM599",
+    "label": "Trabeculae carneae of left ventricle",
+    "filename": "MM599_BP51796_FMA7271_Trabecula carnea of left ventricle.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM600",
+    "label": "Muscular part of interventricular septum (IV septum)",
+    "filename": "MM600_BP51936_FMA7134_Muscular part of interventricular septum.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM601",
+    "label": "Pulmonary annulus - Right anterior fibrous scallop",
+    "filename": "MM601_BP51900_FMA84619_Right anterior semilunar fibrous scallop of pulmonary valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM602",
+    "label": "Pulmonary annulus - Posterior fibrous scallop",
+    "filename": "MM602_BP58389_FMA84625_Posterior semilunar fibrous scallop of pulmonary valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM603",
+    "label": "Pulmonary annulus - Left anterior fibrous scallop",
+    "filename": "MM603_BP51914_FMA84626_Left anterior semilunar fibrous scallop of pulmonary valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM604",
+    "label": "Pulmonary valve - Right anterior cusp",
+    "filename": "MM604_BP51948_FMA7249_Right anterior cusp of pulmonary valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM605",
+    "label": "Pulmonary valve - Posterior cusp",
+    "filename": "MM605_BP51935_FMA7250_Posterior cusp of pulmonary valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM606",
+    "label": "Pulmonary valve - Left anterior cusp",
+    "filename": "MM606_BP51921_FMA7247_Left anterior cusp of pulmonary valve.obj"
+  },
+  {
+    "group": "great_vessels",
+    "id": "MM607",
+    "label": "Pulmonary trunk proper",
+    "filename": "MM607_BP58392_FMA15086_Pulmonary trunk proper.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM609",
+    "label": "Triangle of sinu-atrial node (Koch triangle landmark)",
+    "filename": "MM609_BP58397_FMA77435_Triangle of sinu-atrial node.obj"
+  },
+  {
+    "group": "lcx_branches",
+    "id": "MM610",
+    "label": "LCX obtuse marginal branch (OM1)",
+    "filename": "MM610_BP51926_FMA3902_Left marginal artery.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM632",
+    "label": "Anterior wall proper of left atrium",
+    "filename": "MM632_BP51844_FMA49292_Anterior wall proper of left atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM633",
+    "label": "Posterior wall of left atrium",
+    "filename": "MM633_BP51882_FMA9542_Posterior wall of left atrium.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM634",
+    "label": "Coronary sinus (distal confluence)",
+    "filename": "MM634_BP51951_FMA4706_Coronary sinus.obj"
+  },
+  {
+    "group": "lcx",
+    "id": "MM635",
+    "label": "LCX circumflex trunk - distal segment",
+    "filename": "MM635_BP51973_FMA74923_Trunk of circumflex branch of left coronary artery.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM636",
+    "label": "Anterior papillary muscle of left ventricle",
+    "filename": "MM636_BP51794_FMA7264_Anterior papillary muscle of left ventricle.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM637",
+    "label": "Posterior papillary muscle of left ventricle",
+    "filename": "MM637_BP51813_FMA7266_Posterior papillary muscle of left ventricle.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM638",
+    "label": "Coronary sinus (proximal atrial junction)",
+    "filename": "MM638_BP51951_FMA4706_Coronary sinus.obj"
+  }
+]

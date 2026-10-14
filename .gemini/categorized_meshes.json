@@ -1,0 +1,1163 @@
+[
+  {
+    "id": "MM419",
+    "bpid": "BP51825",
+    "fmaid": "FMA9477",
+    "label": "Sinuatrial node",
+    "filename": "MM419_BP51825_FMA9477_Sinuatrial node.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM420",
+    "bpid": "BP51969",
+    "fmaid": "FMA74912",
+    "label": "Trunk of anterior interventricular branch of left coronary artery",
+    "filename": "MM420_BP51969_FMA74912_Trunk of anterior interventricular branch of left coronary artery.obj",
+    "cat": "lad",
+    "subcat": "LAD Trunk"
+  },
+  {
+    "id": "MM422",
+    "bpid": "BP51972",
+    "fmaid": "FMA3860",
+    "label": "Diagonal branch of anterior descending branch of left coronary artery",
+    "filename": "MM422_BP51972_FMA3860_Diagonal branch of anterior descending branch of left coronary artery.obj",
+    "cat": "lad_branches",
+    "subcat": "LAD Branch"
+  },
+  {
+    "id": "MM423",
+    "bpid": "BP51965",
+    "fmaid": "FMA3888",
+    "label": "Second left anterior branch of anterior interventricular branch of left coronary artery",
+    "filename": "MM423_BP51965_FMA3888_Second left anterior branch of anterior interventricular branch of left coronary artery.obj",
+    "cat": "lad_branches",
+    "subcat": "LAD Branch"
+  },
+  {
+    "id": "MM424",
+    "bpid": "BP51969",
+    "fmaid": "FMA74912",
+    "label": "Trunk of anterior interventricular branch of left coronary artery",
+    "filename": "MM424_BP51969_FMA74912_Trunk of anterior interventricular branch of left coronary artery.obj",
+    "cat": "lad",
+    "subcat": "LAD Trunk"
+  },
+  {
+    "id": "MM425",
+    "bpid": "BP51969",
+    "fmaid": "FMA74912",
+    "label": "Trunk of anterior interventricular branch of left coronary artery",
+    "filename": "MM425_BP51969_FMA74912_Trunk of anterior interventricular branch of left coronary artery.obj",
+    "cat": "lad",
+    "subcat": "LAD Trunk"
+  },
+  {
+    "id": "MM426",
+    "bpid": "BP51973",
+    "fmaid": "FMA74923",
+    "label": "Trunk of circumflex branch of left coronary artery",
+    "filename": "MM426_BP51973_FMA74923_Trunk of circumflex branch of left coronary artery.obj",
+    "cat": "lcx",
+    "subcat": "LCX Trunk"
+  },
+  {
+    "id": "MM428",
+    "bpid": "BP51937",
+    "fmaid": "FMA3914",
+    "label": "First posterior ventricular branch of circumflex coronary artery",
+    "filename": "MM428_BP51937_FMA3914_First posterior ventricular branch of circumflex coronary artery.obj",
+    "cat": "lcx_branches",
+    "subcat": "LCX Branch"
+  },
+  {
+    "id": "MM430",
+    "bpid": "BP58390",
+    "fmaid": "FMA79742",
+    "label": "Trunk of posterior interventricular branch of left coronary artery",
+    "filename": "MM430_BP58390_FMA79742_Trunk of posterior interventricular branch of left coronary artery.obj",
+    "cat": "lad",
+    "subcat": "LAD Trunk"
+  },
+  {
+    "id": "MM431",
+    "bpid": "BP51970",
+    "fmaid": "FMA3893",
+    "label": "Anterior septal branch of anterior interventricular artery",
+    "filename": "MM431_BP51970_FMA3893_Anterior septal branch of anterior interventricular artery.obj",
+    "cat": "lad_branches",
+    "subcat": "LAD Branch"
+  },
+  {
+    "id": "MM432",
+    "bpid": "BP51962",
+    "fmaid": "FMA3890",
+    "label": "Third left anterior branch of anterior interventricular branch of left coronary artery",
+    "filename": "MM432_BP51962_FMA3890_Third left anterior branch of anterior interventricular branch of left coronary artery.obj",
+    "cat": "lad_branches",
+    "subcat": "LAD Branch"
+  },
+  {
+    "id": "MM433",
+    "bpid": "BP51970",
+    "fmaid": "FMA3893",
+    "label": "Anterior septal branch of anterior interventricular artery",
+    "filename": "MM433_BP51970_FMA3893_Anterior septal branch of anterior interventricular artery.obj",
+    "cat": "lad_branches",
+    "subcat": "LAD Branch"
+  },
+  {
+    "id": "MM434",
+    "bpid": "BP51970",
+    "fmaid": "FMA3893",
+    "label": "Anterior septal branch of anterior interventricular artery",
+    "filename": "MM434_BP51970_FMA3893_Anterior septal branch of anterior interventricular artery.obj",
+    "cat": "lad_branches",
+    "subcat": "LAD Branch"
+  },
+  {
+    "id": "MM436",
+    "bpid": "BP51977",
+    "fmaid": "FMA3802",
+    "label": "Trunk of right coronary artery",
+    "filename": "MM436_BP51977_FMA3802_Trunk of right coronary artery.obj",
+    "cat": "rca",
+    "subcat": "RCA Trunk"
+  },
+  {
+    "id": "MM437",
+    "bpid": "BP51980",
+    "fmaid": "FMA3815",
+    "label": "First anterior ventricular branch of right coronary artery",
+    "filename": "MM437_BP51980_FMA3815_First anterior ventricular branch of right coronary artery.obj",
+    "cat": "rca_branches",
+    "subcat": "RCA Branch"
+  },
+  {
+    "id": "MM438",
+    "bpid": "BP51922",
+    "fmaid": "FMA3823",
+    "label": "Sinoatrial nodal branch of right coronary artery",
+    "filename": "MM438_BP51922_FMA3823_Sinoatrial nodal branch of right coronary artery.obj",
+    "cat": "rca_branches",
+    "subcat": "RCA Branch"
+  },
+  {
+    "id": "MM439",
+    "bpid": "BP51977",
+    "fmaid": "FMA3802",
+    "label": "Trunk of right coronary artery",
+    "filename": "MM439_BP51977_FMA3802_Trunk of right coronary artery.obj",
+    "cat": "rca",
+    "subcat": "RCA Trunk"
+  },
+  {
+    "id": "MM440",
+    "bpid": "BP51950",
+    "fmaid": "FMA3818",
+    "label": "Marginal branch of right coronary artery",
+    "filename": "MM440_BP51950_FMA3818_Marginal branch of right coronary artery.obj",
+    "cat": "rca_branches",
+    "subcat": "RCA Branch"
+  },
+  {
+    "id": "MM441",
+    "bpid": "BP51955",
+    "fmaid": "FMA3807",
+    "label": "Conus branch of right coronary artery",
+    "filename": "MM441_BP51955_FMA3807_Conus branch of right coronary artery.obj",
+    "cat": "rca_branches",
+    "subcat": "RCA Branch"
+  },
+  {
+    "id": "MM443",
+    "bpid": "BP51952",
+    "fmaid": "FMA3851",
+    "label": "Atrioventricular node branch of right coronary artery",
+    "filename": "MM443_BP51952_FMA3851_Atrioventricular node branch of right coronary artery.obj",
+    "cat": "rca_branches",
+    "subcat": "RCA Branch"
+  },
+  {
+    "id": "MM444",
+    "bpid": "BP51956",
+    "fmaid": "FMA3837",
+    "label": "First posterior ventricular branch of right coronary artery",
+    "filename": "MM444_BP51956_FMA3837_First posterior ventricular branch of right coronary artery.obj",
+    "cat": "rca_branches",
+    "subcat": "RCA Branch"
+  },
+  {
+    "id": "MM445",
+    "bpid": "BP51957",
+    "fmaid": "FMA3829",
+    "label": "Anterior atrial branch of right coronary artery",
+    "filename": "MM445_BP51957_FMA3829_Anterior atrial branch of right coronary artery.obj",
+    "cat": "rca_branches",
+    "subcat": "RCA Branch"
+  },
+  {
+    "id": "MM446",
+    "bpid": "BP58391",
+    "fmaid": "FMA76767",
+    "label": "Anterior cardiac vein",
+    "filename": "MM446_BP58391_FMA76767_Anterior cardiac vein.obj",
+    "cat": "cardiac_veins",
+    "subcat": "Cardiac Vein / Sinus"
+  },
+  {
+    "id": "MM447",
+    "bpid": "BP51947",
+    "fmaid": "FMA4707",
+    "label": "Great cardiac vein",
+    "filename": "MM447_BP51947_FMA4707_Great cardiac vein.obj",
+    "cat": "cardiac_veins",
+    "subcat": "Cardiac Vein / Sinus"
+  },
+  {
+    "id": "MM448",
+    "bpid": "BP51947",
+    "fmaid": "FMA4707",
+    "label": "Great cardiac vein",
+    "filename": "MM448_BP51947_FMA4707_Great cardiac vein.obj",
+    "cat": "cardiac_veins",
+    "subcat": "Cardiac Vein / Sinus"
+  },
+  {
+    "id": "MM449",
+    "bpid": "BP51951",
+    "fmaid": "FMA4706",
+    "label": "Coronary sinus",
+    "filename": "MM449_BP51951_FMA4706_Coronary sinus.obj",
+    "cat": "cardiac_veins",
+    "subcat": "Cardiac Vein / Sinus"
+  },
+  {
+    "id": "MM451",
+    "bpid": "BP51932",
+    "fmaid": "FMA4716",
+    "label": "Right marginal vein",
+    "filename": "MM451_BP51932_FMA4716_Right marginal vein.obj",
+    "cat": "other",
+    "subcat": "Other"
+  },
+  {
+    "id": "MM452",
+    "bpid": "BP51938",
+    "fmaid": "FMA4714",
+    "label": "Small cardiac vein",
+    "filename": "MM452_BP51938_FMA4714_Small cardiac vein.obj",
+    "cat": "cardiac_veins",
+    "subcat": "Cardiac Vein / Sinus"
+  },
+  {
+    "id": "MM456",
+    "bpid": "BP51862",
+    "fmaid": "FMA9306",
+    "label": "Lateral wall of left atrium",
+    "filename": "MM456_BP51862_FMA9306_Lateral wall of left atrium.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM458",
+    "bpid": "BP51886",
+    "fmaid": "FMA84095",
+    "label": "Septal wall of left atrium",
+    "filename": "MM458_BP51886_FMA84095_Septal wall of left atrium.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM459",
+    "bpid": "BP51840",
+    "fmaid": "FMA9547",
+    "label": "Wall of left auricle",
+    "filename": "MM459_BP51840_FMA9547_Wall of left auricle.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM460",
+    "bpid": "BP51866",
+    "fmaid": "FMA9562",
+    "label": "Superior wall of left atrium",
+    "filename": "MM460_BP51866_FMA9562_Superior wall of left atrium.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM461",
+    "bpid": "BP51819",
+    "fmaid": "FMA49299",
+    "label": "Wall of right auricle proper",
+    "filename": "MM461_BP51819_FMA49299_Wall of right auricle proper.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM462",
+    "bpid": "BP51838",
+    "fmaid": "FMA9236",
+    "label": "Crista terminalis",
+    "filename": "MM462_BP51838_FMA9236_Crista terminalis.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM463",
+    "bpid": "BP51847",
+    "fmaid": "FMA9240",
+    "label": "Valve of inferior vena cava",
+    "filename": "MM463_BP51847_FMA9240_Valve of inferior vena cava.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM466",
+    "bpid": "BP51829",
+    "fmaid": "FMA49298",
+    "label": "Pectinate muscle of right auricle",
+    "filename": "MM466_BP51829_FMA49298_Pectinate muscle of right auricle.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM467",
+    "bpid": "BP51841",
+    "fmaid": "FMA9277",
+    "label": "Tendon of Todaro",
+    "filename": "MM467_BP51841_FMA9277_Tendon of Todaro.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM474",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM474_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM506",
+    "bpid": "BP51985",
+    "fmaid": "FMA23733",
+    "label": "Ascending aorta proper",
+    "filename": "MM506_BP51985_FMA23733_Ascending aorta proper.obj",
+    "cat": "great_vessels",
+    "subcat": "Aorta"
+  },
+  {
+    "id": "MM514",
+    "bpid": "BP51916",
+    "fmaid": "FMA84617",
+    "label": "Right posterior semilunar fibrous scallop of aortic valve anulus",
+    "filename": "MM514_BP51916_FMA84617_Right posterior semilunar fibrous scallop of aortic valve anulus.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM515",
+    "bpid": "BP51913",
+    "fmaid": "FMA84616",
+    "label": "Left posterior semilunar fibrous scallop of aortic valve anulus",
+    "filename": "MM515_BP51913_FMA84616_Left posterior semilunar fibrous scallop of aortic valve anulus.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM516",
+    "bpid": "BP51915",
+    "fmaid": "FMA84618",
+    "label": "Anterior semilunar fibrous scallop of aortic valve anulus",
+    "filename": "MM516_BP51915_FMA84618_Anterior semilunar fibrous scallop of aortic valve anulus.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM517",
+    "bpid": "BP51924",
+    "fmaid": "FMA9502",
+    "label": "Fibrous ring of aortic valve",
+    "filename": "MM517_BP51924_FMA9502_Fibrous ring of aortic valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM519",
+    "bpid": "BP51879",
+    "fmaid": "FMA7252",
+    "label": "Right posterior cusp of aortic valve",
+    "filename": "MM519_BP51879_FMA7252_Right posterior cusp of aortic valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM520",
+    "bpid": "BP51924",
+    "fmaid": "FMA9502",
+    "label": "Fibrous ring of aortic valve",
+    "filename": "MM520_BP51924_FMA9502_Fibrous ring of aortic valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM521",
+    "bpid": "BP51864",
+    "fmaid": "FMA7254",
+    "label": "Left posterior cusp of aortic valve",
+    "filename": "MM521_BP51864_FMA7254_Left posterior cusp of aortic valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM524",
+    "bpid": "BP51927",
+    "fmaid": "FMA7253",
+    "label": "Anterior cusp of aortic valve",
+    "filename": "MM524_BP51927_FMA7253_Anterior cusp of aortic valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM526",
+    "bpid": "BP51892",
+    "fmaid": "FMA9508",
+    "label": "Left fibrous trigone of heart",
+    "filename": "MM526_BP51892_FMA9508_Left fibrous trigone of heart.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM529",
+    "bpid": "BP51899",
+    "fmaid": "FMA9498",
+    "label": "Fibrous ring of mitral valve",
+    "filename": "MM529_BP51899_FMA9498_Fibrous ring of mitral valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM532",
+    "bpid": "BP51848",
+    "fmaid": "FMA7272",
+    "label": "Septomarginal trabecula",
+    "filename": "MM532_BP51848_FMA7272_Septomarginal trabecula.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM534",
+    "bpid": "BP51828",
+    "fmaid": "FMA13258",
+    "label": "Mural limb of supraventricular crest",
+    "filename": "MM534_BP51828_FMA13258_Mural limb of supraventricular crest.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM537",
+    "bpid": "BP51810",
+    "fmaid": "FMA7262",
+    "label": "Septal papillary muscle of right ventricle",
+    "filename": "MM537_BP51810_FMA7262_Septal papillary muscle of right ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM538",
+    "bpid": "BP51878",
+    "fmaid": "FMA49208",
+    "label": "Wall of outflow part of right ventricle",
+    "filename": "MM538_BP51878_FMA49208_Wall of outflow part of right ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM541",
+    "bpid": "BP51877",
+    "fmaid": "FMA7242",
+    "label": "Anterior leaflet of mitral valve",
+    "filename": "MM541_BP51877_FMA7242_Anterior leaflet of mitral valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM542",
+    "bpid": "BP51793",
+    "fmaid": "FMA7243",
+    "label": "Posterior leaflet of mitral valve",
+    "filename": "MM542_BP51793_FMA7243_Posterior leaflet of mitral valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM543",
+    "bpid": "BP51877",
+    "fmaid": "FMA7242",
+    "label": "Anterior leaflet of mitral valve",
+    "filename": "MM543_BP51877_FMA7242_Anterior leaflet of mitral valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM544",
+    "bpid": "BP51793",
+    "fmaid": "FMA7243",
+    "label": "Posterior leaflet of mitral valve",
+    "filename": "MM544_BP51793_FMA7243_Posterior leaflet of mitral valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM550",
+    "bpid": "BP51806",
+    "fmaid": "FMA7260",
+    "label": "Anterior papillary muscle of right ventricle",
+    "filename": "MM550_BP51806_FMA7260_Anterior papillary muscle of right ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM551",
+    "bpid": "BP51803",
+    "fmaid": "FMA7261",
+    "label": "Posterior papillary muscle of right ventricle",
+    "filename": "MM551_BP51803_FMA7261_Posterior papillary muscle of right ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM556",
+    "bpid": "BP51977",
+    "fmaid": "FMA3802",
+    "label": "Trunk of right coronary artery",
+    "filename": "MM556_BP51977_FMA3802_Trunk of right coronary artery.obj",
+    "cat": "rca",
+    "subcat": "RCA Trunk"
+  },
+  {
+    "id": "MM557",
+    "bpid": "BP58405",
+    "fmaid": "FMA4685",
+    "label": "Stem of left coronary artery",
+    "filename": "MM557_BP58405_FMA4685_Stem of left coronary artery.obj",
+    "cat": "left_coronary_stem",
+    "subcat": "Left Coronary Stem (LM)"
+  },
+  {
+    "id": "MM558",
+    "bpid": "BP51975",
+    "fmaid": "FMA15098",
+    "label": "Wall of bulb of aorta",
+    "filename": "MM558_BP51975_FMA15098_Wall of bulb of aorta.obj",
+    "cat": "great_vessels",
+    "subcat": "Aorta"
+  },
+  {
+    "id": "MM559",
+    "bpid": "BP51843",
+    "fmaid": "FMA49285",
+    "label": "Anterior wall proper of right atrium",
+    "filename": "MM559_BP51843_FMA49285_Anterior wall proper of right atrium.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM560",
+    "bpid": "BP51837",
+    "fmaid": "FMA49286",
+    "label": "Lateral wall proper of right atrium",
+    "filename": "MM560_BP51837_FMA49286_Lateral wall proper of right atrium.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM562",
+    "bpid": "BP51846",
+    "fmaid": "FMA9242",
+    "label": "Valve of coronary sinus",
+    "filename": "MM562_BP51846_FMA9242_Valve of coronary sinus.obj",
+    "cat": "cardiac_veins",
+    "subcat": "Cardiac Vein / Sinus"
+  },
+  {
+    "id": "MM563",
+    "bpid": "BP51852",
+    "fmaid": "FMA13257",
+    "label": "Septal limb of supraventricular crest",
+    "filename": "MM563_BP51852_FMA13257_Septal limb of supraventricular crest.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM564",
+    "bpid": "BP51832",
+    "fmaid": "FMA7270",
+    "label": "Trabecula carnea of right ventricle",
+    "filename": "MM564_BP51832_FMA7270_Trabecula carnea of right ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM568",
+    "bpid": "BP51893",
+    "fmaid": "FMA83468",
+    "label": "Membranous part of interventricular septum proper",
+    "filename": "MM568_BP51893_FMA83468_Membranous part of interventricular septum proper.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM569",
+    "bpid": "BP51930",
+    "fmaid": "FMA7238",
+    "label": "Anterior leaflet of tricuspid valve",
+    "filename": "MM569_BP51930_FMA7238_Anterior leaflet of tricuspid valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM570",
+    "bpid": "BP51920",
+    "fmaid": "FMA7239",
+    "label": "Posterior leaflet of tricuspid valve",
+    "filename": "MM570_BP51920_FMA7239_Posterior leaflet of tricuspid valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM571",
+    "bpid": "BP51920",
+    "fmaid": "FMA7239",
+    "label": "Posterior leaflet of tricuspid valve",
+    "filename": "MM571_BP51920_FMA7239_Posterior leaflet of tricuspid valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM572",
+    "bpid": "BP51918",
+    "fmaid": "FMA85237",
+    "label": "Anulus proper of tricuspid valve",
+    "filename": "MM572_BP51918_FMA85237_Anulus proper of tricuspid valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM573",
+    "bpid": "BP51943",
+    "fmaid": "FMA7240",
+    "label": "Septal leaflet of tricuspid valve",
+    "filename": "MM573_BP51943_FMA7240_Septal leaflet of tricuspid valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM574",
+    "bpid": "BP51943",
+    "fmaid": "FMA7240",
+    "label": "Septal leaflet of tricuspid valve",
+    "filename": "MM574_BP51943_FMA7240_Septal leaflet of tricuspid valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM575",
+    "bpid": "BP51930",
+    "fmaid": "FMA7238",
+    "label": "Anterior leaflet of tricuspid valve",
+    "filename": "MM575_BP51930_FMA7238_Anterior leaflet of tricuspid valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM577",
+    "bpid": "BP51824",
+    "fmaid": "FMA9486",
+    "label": "Right branch of atrioventricular bundle",
+    "filename": "MM577_BP51824_FMA9486_Right branch of atrioventricular bundle.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM578",
+    "bpid": "BP51790",
+    "fmaid": "FMA9489",
+    "label": "Posterior division of left branch of atrioventricular bundle",
+    "filename": "MM578_BP51790_FMA9489_Posterior division of left branch of atrioventricular bundle.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM579",
+    "bpid": "BP51789",
+    "fmaid": "FMA83331",
+    "label": "Septal division of left branch of atrioventricular bundle",
+    "filename": "MM579_BP51789_FMA83331_Septal division of left branch of atrioventricular bundle.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM580",
+    "bpid": "BP51788",
+    "fmaid": "FMA9488",
+    "label": "Anterior division of left branch of atrioventricular bundle",
+    "filename": "MM580_BP51788_FMA9488_Anterior division of left branch of atrioventricular bundle.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM582",
+    "bpid": "BP51827",
+    "fmaid": "FMA9483",
+    "label": "Posterior internodal tract",
+    "filename": "MM582_BP51827_FMA9483_Posterior internodal tract.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM583",
+    "bpid": "BP51818",
+    "fmaid": "FMA9482",
+    "label": "Middle internodal tract",
+    "filename": "MM583_BP51818_FMA9482_Middle internodal tract.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM584",
+    "bpid": "BP51831",
+    "fmaid": "FMA84578",
+    "label": "Atrial branch of anterior internodal tract",
+    "filename": "MM584_BP51831_FMA84578_Atrial branch of anterior internodal tract.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM585",
+    "bpid": "BP51875",
+    "fmaid": "FMA9480",
+    "label": "Anterior internodal tract",
+    "filename": "MM585_BP51875_FMA9480_Anterior internodal tract.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM586",
+    "bpid": "BP51792",
+    "fmaid": "FMA9484",
+    "label": "Atrioventricular bundle",
+    "filename": "MM586_BP51792_FMA9484_Atrioventricular bundle.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM587",
+    "bpid": "BP51791",
+    "fmaid": "FMA9478",
+    "label": "Atrioventricular node",
+    "filename": "MM587_BP51791_FMA9478_Atrioventricular node.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM590",
+    "bpid": "BP51888",
+    "fmaid": "FMA84094",
+    "label": "Septal wall of right atrium",
+    "filename": "MM590_BP51888_FMA84094_Septal wall of right atrium.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM591",
+    "bpid": "BP51888",
+    "fmaid": "FMA84094",
+    "label": "Septal wall of right atrium",
+    "filename": "MM591_BP51888_FMA84094_Septal wall of right atrium.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM592",
+    "bpid": "BP51898",
+    "fmaid": "FMA7108",
+    "label": "Interatrial septum",
+    "filename": "MM592_BP51898_FMA7108_Interatrial septum.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM593",
+    "bpid": "BP51898",
+    "fmaid": "FMA7108",
+    "label": "Interatrial septum",
+    "filename": "MM593_BP51898_FMA7108_Interatrial septum.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM594",
+    "bpid": "BP51936",
+    "fmaid": "FMA7134",
+    "label": "Muscular part of interventricular septum",
+    "filename": "MM594_BP51936_FMA7134_Muscular part of interventricular septum.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM595",
+    "bpid": "BP51903",
+    "fmaid": "FMA7136",
+    "label": "Atrioventricular septum",
+    "filename": "MM595_BP51903_FMA7136_Atrioventricular septum.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM596",
+    "bpid": "BP51912",
+    "fmaid": "FMA9505",
+    "label": "Right fibrous trigone of heart",
+    "filename": "MM596_BP51912_FMA9505_Right fibrous trigone of heart.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM598",
+    "bpid": "BP51861",
+    "fmaid": "FMA49207",
+    "label": "Wall of inflow part of right ventricle",
+    "filename": "MM598_BP51861_FMA49207_Wall of inflow part of right ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM599",
+    "bpid": "BP51796",
+    "fmaid": "FMA7271",
+    "label": "Trabecula carnea of left ventricle",
+    "filename": "MM599_BP51796_FMA7271_Trabecula carnea of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM600",
+    "bpid": "BP51936",
+    "fmaid": "FMA7134",
+    "label": "Muscular part of interventricular septum",
+    "filename": "MM600_BP51936_FMA7134_Muscular part of interventricular septum.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM601",
+    "bpid": "BP51900",
+    "fmaid": "FMA84619",
+    "label": "Right anterior semilunar fibrous scallop of pulmonary valve anulus",
+    "filename": "MM601_BP51900_FMA84619_Right anterior semilunar fibrous scallop of pulmonary valve anulus.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM602",
+    "bpid": "BP58389",
+    "fmaid": "FMA84625",
+    "label": "Posterior semilunar fibrous scallop of pulmonary valve anulus",
+    "filename": "MM602_BP58389_FMA84625_Posterior semilunar fibrous scallop of pulmonary valve anulus.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM603",
+    "bpid": "BP51914",
+    "fmaid": "FMA84626",
+    "label": "Left anterior semilunar fibrous scallop of pulmonary valve anulus",
+    "filename": "MM603_BP51914_FMA84626_Left anterior semilunar fibrous scallop of pulmonary valve anulus.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM604",
+    "bpid": "BP51948",
+    "fmaid": "FMA7249",
+    "label": "Right anterior cusp of pulmonary valve",
+    "filename": "MM604_BP51948_FMA7249_Right anterior cusp of pulmonary valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM605",
+    "bpid": "BP51935",
+    "fmaid": "FMA7250",
+    "label": "Posterior cusp of pulmonary valve",
+    "filename": "MM605_BP51935_FMA7250_Posterior cusp of pulmonary valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM606",
+    "bpid": "BP51921",
+    "fmaid": "FMA7247",
+    "label": "Left anterior cusp of pulmonary valve",
+    "filename": "MM606_BP51921_FMA7247_Left anterior cusp of pulmonary valve.obj",
+    "cat": "valves",
+    "subcat": "Valve / Fibrous Ring"
+  },
+  {
+    "id": "MM607",
+    "bpid": "BP58392",
+    "fmaid": "FMA15086",
+    "label": "Pulmonary trunk proper",
+    "filename": "MM607_BP58392_FMA15086_Pulmonary trunk proper.obj",
+    "cat": "great_vessels",
+    "subcat": "Pulmonary Trunk"
+  },
+  {
+    "id": "MM609",
+    "bpid": "BP58397",
+    "fmaid": "FMA77435",
+    "label": "Triangle of sinu-atrial node",
+    "filename": "MM609_BP58397_FMA77435_Triangle of sinu-atrial node.obj",
+    "cat": "conduction_system",
+    "subcat": "Conduction System"
+  },
+  {
+    "id": "MM610",
+    "bpid": "BP51926",
+    "fmaid": "FMA3902",
+    "label": "Left marginal artery",
+    "filename": "MM610_BP51926_FMA3902_Left marginal artery.obj",
+    "cat": "lcx_branches",
+    "subcat": "LCX Branch"
+  },
+  {
+    "id": "MM613",
+    "bpid": "BP52013",
+    "fmaid": "FMA9345",
+    "label": "Septal wall of left ventricle",
+    "filename": "MM613_BP52013_FMA9345_Septal wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM614",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM614_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM615",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM615_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM616",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM616_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM618",
+    "bpid": "BP52013",
+    "fmaid": "FMA9345",
+    "label": "Septal wall of left ventricle",
+    "filename": "MM618_BP52013_FMA9345_Septal wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM619",
+    "bpid": "BP52013",
+    "fmaid": "FMA9345",
+    "label": "Septal wall of left ventricle",
+    "filename": "MM619_BP52013_FMA9345_Septal wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM620",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM620_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM621",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM621_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM622",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM622_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM623",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM623_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM624",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM624_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM625",
+    "bpid": "BP52013",
+    "fmaid": "FMA9345",
+    "label": "Septal wall of left ventricle",
+    "filename": "MM625_BP52013_FMA9345_Septal wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM626",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM626_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM627",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM627_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM628",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM628_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM629",
+    "bpid": "BP52013",
+    "fmaid": "FMA9345",
+    "label": "Septal wall of left ventricle",
+    "filename": "MM629_BP52013_FMA9345_Septal wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM630",
+    "bpid": "BP52013",
+    "fmaid": "FMA9345",
+    "label": "Septal wall of left ventricle",
+    "filename": "MM630_BP52013_FMA9345_Septal wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM631",
+    "bpid": "BP51876",
+    "fmaid": "FMA84850",
+    "label": "Free wall of left ventricle",
+    "filename": "MM631_BP51876_FMA84850_Free wall of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM632",
+    "bpid": "BP51844",
+    "fmaid": "FMA49292",
+    "label": "Anterior wall proper of left atrium",
+    "filename": "MM632_BP51844_FMA49292_Anterior wall proper of left atrium.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM633",
+    "bpid": "BP51882",
+    "fmaid": "FMA9542",
+    "label": "Posterior wall of left atrium",
+    "filename": "MM633_BP51882_FMA9542_Posterior wall of left atrium.obj",
+    "cat": "atria",
+    "subcat": "Atrium / Auricle"
+  },
+  {
+    "id": "MM634",
+    "bpid": "BP51951",
+    "fmaid": "FMA4706",
+    "label": "Coronary sinus",
+    "filename": "MM634_BP51951_FMA4706_Coronary sinus.obj",
+    "cat": "cardiac_veins",
+    "subcat": "Cardiac Vein / Sinus"
+  },
+  {
+    "id": "MM635",
+    "bpid": "BP51973",
+    "fmaid": "FMA74923",
+    "label": "Trunk of circumflex branch of left coronary artery",
+    "filename": "MM635_BP51973_FMA74923_Trunk of circumflex branch of left coronary artery.obj",
+    "cat": "lcx",
+    "subcat": "LCX Trunk"
+  },
+  {
+    "id": "MM636",
+    "bpid": "BP51794",
+    "fmaid": "FMA7264",
+    "label": "Anterior papillary muscle of left ventricle",
+    "filename": "MM636_BP51794_FMA7264_Anterior papillary muscle of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM637",
+    "bpid": "BP51813",
+    "fmaid": "FMA7266",
+    "label": "Posterior papillary muscle of left ventricle",
+    "filename": "MM637_BP51813_FMA7266_Posterior papillary muscle of left ventricle.obj",
+    "cat": "ventricles",
+    "subcat": "Ventricle / Myocardium"
+  },
+  {
+    "id": "MM638",
+    "bpid": "BP51951",
+    "fmaid": "FMA4706",
+    "label": "Coronary sinus",
+    "filename": "MM638_BP51951_FMA4706_Coronary sinus.obj",
+    "cat": "cardiac_veins",
+    "subcat": "Cardiac Vein / Sinus"
+  }
+]

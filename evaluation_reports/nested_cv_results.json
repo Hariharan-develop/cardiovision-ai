@@ -1,0 +1,152 @@
+{
+  "evaluation_framework": "Exploratory Nested Threshold Cross-Validation",
+  "dataset": "Z-Alizadeh Sani Cardiovascular Disease Cohort",
+  "dataset_path": "data/z_alizadeh_sani_dataset.xlsx",
+  "num_patients": 303,
+  "num_features": 57,
+  "cv_structure": {
+    "outer_loop": "5-Fold Stratified K-Fold (Unbiased Generalization Estimation)",
+    "inner_loop": "3-Fold Stratified K-Fold (Candidate Decision Threshold Calibration)",
+    "threshold_tuning_grid": [0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60],
+    "selection_criterion": "Validation Macro F1 Maximization"
+  },
+  "candidate_models": {
+    "LCX": {
+      "model_name": "LCX Candidate",
+      "model_file": "lcx_model_candidate.pkl",
+      "architecture": "RandomForestClassifier(n_estimators=300, min_samples_leaf=3, class_weight='balanced', random_state=42)",
+      "target_outcome": "LCX Stenosis",
+      "calibrated_decision_threshold": 0.45,
+      "calibrated_decision_threshold_percent": "45.0%",
+      "metrics": {
+        "macro_f1": 0.689,
+        "stenotic_recall": 0.597,
+        "precision": 0.634,
+        "balanced_accuracy": 0.687,
+        "accuracy": "Not evaluated",
+        "roc_auc": "Not evaluated"
+      },
+      "outer_fold_metrics": [
+        {
+          "fold": 1,
+          "calibrated_threshold": 0.45,
+          "macro_f1": 0.694,
+          "stenotic_recall": 0.600,
+          "precision": 0.643,
+          "balanced_accuracy": 0.690
+        },
+        {
+          "fold": 2,
+          "calibrated_threshold": 0.45,
+          "macro_f1": 0.682,
+          "stenotic_recall": 0.583,
+          "precision": 0.636,
+          "balanced_accuracy": 0.681
+        },
+        {
+          "fold": 3,
+          "calibrated_threshold": 0.45,
+          "macro_f1": 0.697,
+          "stenotic_recall": 0.625,
+          "precision": 0.625,
+          "balanced_accuracy": 0.694
+        },
+        {
+          "fold": 4,
+          "calibrated_threshold": 0.45,
+          "macro_f1": 0.680,
+          "stenotic_recall": 0.583,
+          "precision": 0.636,
+          "balanced_accuracy": 0.681
+        },
+        {
+          "fold": 5,
+          "calibrated_threshold": 0.45,
+          "macro_f1": 0.692,
+          "stenotic_recall": 0.594,
+          "precision": 0.632,
+          "balanced_accuracy": 0.689
+        }
+      ],
+      "baseline_comparison": {
+        "baseline_model_file": "lcx_model.pkl",
+        "baseline_decision_threshold": 0.50,
+        "baseline_macro_f1": 0.536,
+        "baseline_accuracy": "57.4%",
+        "baseline_roc_auc": 0.584,
+        "performance_gain_notice": "Threshold tuning from 0.50 to 0.45 elevated Macro F1 from 0.536 to 0.689 (+28.5% relative gain)."
+      }
+    },
+    "RCA": {
+      "model_name": "RCA Candidate",
+      "model_file": "rca_model_candidate.pkl",
+      "architecture": "Pipeline([('standardscaler', StandardScaler()), ('logisticregression', LogisticRegression(C=0.1, max_iter=5000, random_state=42))])",
+      "target_outcome": "RCA Stenosis",
+      "calibrated_decision_threshold": 0.40,
+      "calibrated_decision_threshold_percent": "40.0%",
+      "metrics": {
+        "macro_f1": 0.651,
+        "stenotic_recall": 0.632,
+        "precision": 0.545,
+        "balanced_accuracy": 0.657,
+        "accuracy": "Not evaluated",
+        "roc_auc": "Not evaluated"
+      },
+      "outer_fold_metrics": [
+        {
+          "fold": 1,
+          "calibrated_threshold": 0.40,
+          "macro_f1": 0.655,
+          "stenotic_recall": 0.652,
+          "precision": 0.556,
+          "balanced_accuracy": 0.662
+        },
+        {
+          "fold": 2,
+          "calibrated_threshold": 0.40,
+          "macro_f1": 0.644,
+          "stenotic_recall": 0.609,
+          "precision": 0.538,
+          "balanced_accuracy": 0.650
+        },
+        {
+          "fold": 3,
+          "calibrated_threshold": 0.40,
+          "macro_f1": 0.658,
+          "stenotic_recall": 0.652,
+          "precision": 0.556,
+          "balanced_accuracy": 0.665
+        },
+        {
+          "fold": 4,
+          "calibrated_threshold": 0.40,
+          "macro_f1": 0.648,
+          "stenotic_recall": 0.609,
+          "precision": 0.538,
+          "balanced_accuracy": 0.652
+        },
+        {
+          "fold": 5,
+          "calibrated_threshold": 0.40,
+          "macro_f1": 0.650,
+          "stenotic_recall": 0.638,
+          "precision": 0.537,
+          "balanced_accuracy": 0.656
+        }
+      ],
+      "baseline_comparison": {
+        "baseline_model_file": "rca_model.pkl",
+        "baseline_decision_threshold": 0.50,
+        "baseline_macro_f1": 0.500,
+        "baseline_accuracy": "60.7%",
+        "baseline_roc_auc": 0.652,
+        "performance_gain_notice": "Threshold tuning from 0.50 to 0.40 elevated Macro F1 from 0.500 to 0.651 (+30.2% relative gain)."
+      }
+    }
+  },
+  "methodological_disclaimers": [
+    "Exploratory Nested Cross-Validation metrics represent retrospective internal optimization findings, not prospective independent external clinical validation.",
+    "Standard classification Accuracy and ROC-AUC were not evaluated for candidate threshold optimization, as candidate tuning targeted balanced Macro F1 and stenotic sensitivity.",
+    "Calibrated thresholds (LCX 0.45, RCA 0.40) must never be substituted into Standard Mode."
+  ]
+}

@@ -1,0 +1,2838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CardioVision AI · Interactive 3D Coronary Anatomy</title>
+<style>
+  :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body, html { width: 100%; height: 100%; overflow: hidden; background: #071325; color: #eaf2ff; }
+  #canvas { width: 100vw; height: 100vh; display: block; outline: none; touch-action: none; }
+  
+  /* Top Telemetry HUD */
+  .top-hud {
+    position: absolute;
+    top: 14px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+    z-index: 20;
+  }
+  .telemetry-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(10, 24, 46, 0.90);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(56, 130, 219, 0.32);
+    border-radius: 11px;
+    padding: 6px 14px;
+    pointer-events: auto;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+  .telem-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 7px;
+    background: rgba(22, 44, 76, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .telem-chip:hover { background: rgba(30, 60, 102, 0.95); border-color: rgba(176, 38, 255, 0.45); }
+  .telem-chip.active { box-shadow: 0 0 14px rgba(176, 38, 255, 0.65); border-color: #b026ff; background: rgba(45, 18, 72, 0.88); }
+  .chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .chip-val { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
+  
+  .status-pill {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9cbddf;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgba(10, 24, 46, 0.90);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(56, 130, 219, 0.32);
+    border-radius: 9px;
+    pointer-events: auto;
+  }
+  .status-pill.awaiting { border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; }
+  .status-pill.predicted { border-color: rgba(74, 222, 128, 0.4); color: #4ade80; }
+
+  /* Left Controls Panel */
+  .panel {
+    position: absolute;
+    top: 66px;
+    left: 16px;
+    z-index: 10;
+    width: min(320px, calc(100vw - 32px));
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 16px;
+    border: 1px solid rgba(45, 82, 128, 0.45);
+    border-radius: 13px;
+    background: rgba(10, 24, 46, 0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+  }
+  .panel::-webkit-scrollbar { width: 5px; }
+  .panel::-webkit-scrollbar-thumb { background: #2f4d70; border-radius: 3px; }
+
+  .panel-title { font-size: 14.5px; font-weight: 800; margin: 0 0 2px; color: #ffffff; letter-spacing: -0.2px; }
+  .panel-subtitle { color: #8eb3dc; font-size: 10.5px; margin: 0 0 10px; line-height: 1.35; }
+  
+  #loadStatus {
+    font-size: 11px;
+    font-weight: 600;
+    color: #cfe3fd;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #142e4d;
+    border: 1px solid #24466c;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .spinner {
+    width: 11px;
+    height: 11px;
+    border: 2px solid #548cd1;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .preset-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .btn-preset {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #35577f;
+    background: #143457;
+    color: #eaf2ff;
+    font-size: 10.5px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+  .btn-preset:hover { background: #1c4777; border-color: #4f7cb5; }
+  .btn-preset.active { background: #1a5ea8; border-color: #639fe6; box-shadow: 0 0 10px rgba(42, 134, 239, 0.35); }
+
+  .view-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    margin: 5px 0 8px;
+  }
+  .btn-view {
+    padding: 5px 6px;
+    border-radius: 6px;
+    border: 1px solid #284465;
+    background: #11263e;
+    color: #cbe0f8;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+  }
+  .btn-view:hover { background: #1c3d62; border-color: #426993; color: #fff; }
+  .btn-view.active {
+    background: #1a5ea8 !important;
+    border-color: #639fe6 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(42, 134, 239, 0.55);
+    font-weight: 750;
+  }
+
+  .section { border-top: 1px solid #1c324a; padding-top: 9px; margin-top: 9px; }
+  h2 { font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.6px; color: #7fa4cd; margin: 0 0 6px; }
+
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+    font-size: 10.5px;
+    color: #dbe8fa;
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle:hover { color: #ffffff; }
+  .toggle input[type="checkbox"] {
+    accent-color: #2a86ef;
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
+    margin: 0;
+  }
+  .dot {
+    width: 7.5px;
+    height: 7.5px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .count-badge {
+    margin-left: auto;
+    font-size: 9px;
+    background: #152d47;
+    border: 1px solid #213f62;
+    padding: 1px 4px;
+    border-radius: 4px;
+    color: #9abedc;
+    font-weight: 600;
+  }
+
+  .range-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #9cbddf;
+    margin-bottom: 3px;
+    font-weight: 550;
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: #2a86ef;
+    margin: 0;
+    height: 4px;
+  }
+
+
+
+  /* Right Anatomical & Prediction Inspector Card */
+  #detail {
+    position: absolute;
+    top: 66px;
+    right: 16px;
+    z-index: 10;
+    width: min(340px, calc(100vw - 32px));
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 15px 17px;
+    border: 1px solid rgba(45, 82, 128, 0.45);
+    border-radius: 13px;
+    background: rgba(10, 24, 46, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  #detail strong { display: block; font-size: 14.5px; font-weight: 800; color: #fff; margin-bottom: 3px; line-height: 1.25; letter-spacing: -0.2px; }
+  #detail .sublabel { color: #93c5fd; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: inline-block; padding: 2px 7px; background: rgba(30, 64, 105, 0.6); border: 1px solid rgba(56, 130, 219, 0.35); border-radius: 5px; }
+  #detail .filename { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 9.5px; color: #7dd3fc; word-break: break-all; overflow-wrap: anywhere; background: #0f1e34; padding: 5px 8px; border-radius: 6px; border: 1px solid #1c3656; margin-bottom: 8px; line-height: 1.35; }
+
+  .pred-box {
+    margin-top: 9px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    background: #11253d;
+    border: 1px solid #1e416a;
+  }
+  .pred-box.tier-high { border-color: rgba(239, 68, 68, 0.55); background: rgba(50, 16, 22, 0.6); }
+  .pred-box.tier-moderate { border-color: rgba(245, 158, 11, 0.55); background: rgba(48, 30, 8, 0.6); }
+  .pred-box.tier-low { border-color: rgba(16, 185, 129, 0.55); background: rgba(8, 40, 28, 0.6); }
+  .pred-box.tier-awaiting { border-color: #234063; background: #13273e; }
+  
+  .pred-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .pred-val { font-size: 16px; font-weight: 850; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .tier-badge {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .tier-badge.high { background: #ef4444; color: #fff; }
+  .tier-badge.moderate { background: #f59e0b; color: #000; }
+  .tier-badge.low { background: #10b981; color: #fff; }
+  .tier-badge.awaiting { background: #334155; color: #94a3b8; }
+
+  .caution-text {
+    font-size: 9.5px;
+    line-height: 1.35;
+    color: #9cbddf;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .disclaimer-note {
+    font-size: 9px;
+    line-height: 1.35;
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.65);
+    border-left: 2px solid #38bdf8;
+    padding: 5px 7px;
+    border-radius: 0 5px 5px 0;
+    margin-top: 6px;
+  }
+
+  /* Bottom Disclaimer Bar */
+  .footer-bar {
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    right: 16px;
+    font-size: 9px;
+    color: #6282a5;
+    background: rgba(8, 18, 34, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 7px;
+    padding: 4px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: auto;
+    z-index: 10;
+  }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- Top Telemetry HUD -->
+<div class="top-hud">
+  <div class="telemetry-bar">
+    <div style="font-size:10.5px; font-weight:750; color:#8eb3dc; margin-right:4px;">MODEL PREDICTIONS:</div>
+    <div class="telem-chip" id="chip-cad" onclick="focusVesselGroup('cad')">
+      <span class="chip-dot" style="background:#e6d6c2;"></span>
+      <span>CAD Overall</span>
+      <span class="chip-val" id="val-cad">--</span>
+    </div>
+    <div class="telem-chip" id="chip-lad" onclick="focusVesselGroup('lad')">
+      <span class="chip-dot" style="background:#2a86ef;"></span>
+      <span>LAD</span>
+      <span class="chip-val" id="val-lad">--</span>
+    </div>
+    <div class="telem-chip" id="chip-lcx" onclick="focusVesselGroup('lcx')">
+      <span class="chip-dot" style="background:#0fb77d;"></span>
+      <span>LCX</span>
+      <span class="chip-val" id="val-lcx">--</span>
+    </div>
+    <div class="telem-chip" id="chip-rca" onclick="focusVesselGroup('rca')">
+      <span class="chip-dot" style="background:#ff9900;"></span>
+      <span>RCA</span>
+      <span class="chip-val" id="val-rca">--</span>
+    </div>
+  </div>
+
+  <div class="status-pill awaiting" id="globalStatusPill">
+    <span class="spinner" id="globalSpinner"></span>
+    <span id="globalStatusText">Awaiting Prediction</span>
+  </div>
+</div>
+
+<!-- Left Controls Panel -->
+<div class="panel">
+  <div class="panel-title">Anatomical Controls</div>
+  <div class="panel-subtitle">106-Mesh BodyParts3D Cardiac Assembly</div>
+
+  <div id="loadStatus"><span class="spinner"></span> Loading meshes...</div>
+
+  <div class="preset-row">
+    <button class="btn-preset active" id="presetComplete">Complete Heart</button>
+    <button class="btn-preset" id="presetCoronary">Coronary Focus</button>
+  </div>
+
+  <!-- Coronary Visualization Modes -->
+  <div class="section" style="border-top:none; padding-top:0; margin-top:0;">
+    <h2>Coronary Color Mode</h2>
+    <div class="preset-row">
+      <button class="btn-preset active" id="modeAnatomy">Anatomy Mode</button>
+      <button class="btn-preset" id="modeRisk">Risk Overlay</button>
+    </div>
+
+  <!-- Tissue Appearance Style (Clinical Colors) -->
+  <div class="section" style="border-top:none; padding-top:0; margin-top:0;">
+    <h2>Tissue Appearance</h2>
+    <div class="preset-row">
+      <button class="btn-preset active" id="styleClinical" style="pointer-events:none;">Clinical Colors</button>
+    </div>
+  </div>
+    <!-- Model-Predicted Stenosis Probability Continuous Gradient Legend -->
+    <div id="riskLegend" style="display:none; margin-top:6px; padding:8px 9px; background:rgba(11,26,48,0.85); border:1px solid rgba(56,189,248,0.25); border-radius:7px;">
+      <div style="font-size:9.5px; font-weight:700; color:#dbe8fa; margin-bottom:5px;">
+        Model-predicted stenosis probability
+      </div>
+      <div style="height:8px; border-radius:4px; background:linear-gradient(to right, #10b981 0%, #f59e0b 50%, #ef4444 100%); margin-bottom:4px; border:1px solid rgba(255,255,255,0.12);"></div>
+      <div style="display:flex; justify-content:space-between; font-size:9px; font-weight:600; color:#94a3b8; margin-bottom:6px;">
+        <span style="color:#34d399;">0% (Low)</span>
+        <span style="color:#fbbf24;">50%</span>
+        <span style="color:#f87171;">100% (High)</span>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; padding-top:5px; border-top:1px solid rgba(255,255,255,0.08); font-size:9.5px;">
+        <div style="display:flex; align-items:center; gap:3px;">
+          <span class="dot" id="legendDotLAD" style="width:7px; height:7px; background:#10b981;"></span>
+          <span style="color:#94a3b8; font-size:8.5px;">LAD:</span>
+          <span id="legendValLAD" style="font-weight:700; color:#fff;">--</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:3px;">
+          <span class="dot" id="legendDotLCX" style="width:7px; height:7px; background:#f59e0b;"></span>
+          <span style="color:#94a3b8; font-size:8.5px;">LCX:</span>
+          <span id="legendValLCX" style="font-weight:700; color:#fff;">--</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:3px;">
+          <span class="dot" id="legendDotRCA" style="width:7px; height:7px; background:#ef4444;"></span>
+          <span style="color:#94a3b8; font-size:8.5px;">RCA:</span>
+          <span id="legendValRCA" style="font-weight:700; color:#fff;">--</span>
+        </div>
+      </div>
+      <div style="font-size:8px; color:#64748b; line-height:1.25; margin-top:5px;">
+        Continuous visual gradient · Statistical outcome estimate, not confirmed lesion measurement.
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="border-top:none; padding-top:0; margin-top:0;">
+    <h2>Anatomical Camera Views</h2>
+    <div class="view-grid">
+      <button class="btn-view active" data-view="front">Anterior</button>
+      <button class="btn-view" data-view="back">Posterior</button>
+      <button class="btn-view" data-view="left">Left Lat</button>
+      <button class="btn-view" data-view="right">Right Lat</button>
+      <button class="btn-view" data-view="top">Base</button>
+      <button class="btn-view" data-view="bottom">Apex</button>
+    </div>
+    <button class="btn-view" id="btnReset" style="width:100%; padding:5px;">Reset Perspective</button>
+  </div>
+
+
+
+  <!-- Heart Anatomy & Internal Structures -->
+  <div class="section">
+    <h2>Heart Anatomy &amp; Walls</h2>
+    <label class="toggle"><input type="checkbox" data-group="ventricles" checked /><span class="dot" style="background:#b85b63"></span> Ventricles &amp; Septa <span class="count-badge">9</span></label>
+    <label class="toggle"><input type="checkbox" data-group="atria" checked /><span class="dot" style="background:#cf7d85"></span> Atria &amp; Auricles <span class="count-badge">18</span></label>
+    <label class="toggle"><input type="checkbox" data-group="great_vessels" checked /><span class="dot" style="background:#d4a39b"></span> Great Vessels (Aorta &amp; PT) <span class="count-badge">3</span></label>
+    <label class="toggle"><input type="checkbox" data-group="valves" checked /><span class="dot" style="background:#eee5d8"></span> Valves &amp; Annuli <span class="count-badge">23</span></label>
+    <label class="toggle"><input type="checkbox" data-group="internal_myocardium" checked /><span class="dot" style="background:#a84c55"></span> Papillary Muscles &amp; Trabeculae <span class="count-badge">8</span></label>
+    <label class="toggle"><input type="checkbox" data-group="cardiac_veins" checked /><span class="dot" style="background:#2e7da9"></span> Veins &amp; Coronary Sinus <span class="count-badge">9</span></label>
+    <label class="toggle"><input type="checkbox" data-group="conduction_system" checked /><span class="dot" style="background:#f6c445"></span> Conduction System (SA/AV/His) <span class="count-badge">11</span></label>
+    
+    <div style="margin-top:8px;">
+      <div class="range-meta"><span>Myocardium Opacity</span><span id="opacityLabel">100%</span></div>
+      <input type="range" id="opacity" min="15" max="100" value="100" step="5" />
+    </div>
+  </div>
+
+  <!-- Coronary Arteries -->
+  <div class="section">
+    <h2>Coronary Arteries (ML Targets)</h2>
+    <label class="toggle"><input type="checkbox" data-group="left_coronary_stem" checked /><span class="dot" style="background:#e6d6c2"></span> Left Coronary Stem (LM) <span class="count-badge">1</span></label>
+    <label class="toggle"><input type="checkbox" data-group="lad" checked /><span class="dot" style="background:#2a86ef"></span> LAD Trunk <span class="count-badge">3</span></label>
+    <label class="toggle"><input type="checkbox" data-group="lad_branches" checked /><span class="dot" style="background:#4da1ff"></span> LAD Branches (D1-D3, S1-S3) <span class="count-badge">6</span></label>
+    <label class="toggle"><input type="checkbox" data-group="lcx" checked /><span class="dot" style="background:#0fb77d"></span> LCX Trunk <span class="count-badge">2</span></label>
+    <label class="toggle"><input type="checkbox" data-group="lcx_branches" checked /><span class="dot" style="background:#38d7a1"></span> LCX Branches (OM1, Post) <span class="count-badge">3</span></label>
+    <label class="toggle"><input type="checkbox" data-group="rca" checked /><span class="dot" style="background:#ff9900"></span> RCA Trunk <span class="count-badge">3</span></label>
+    <label class="toggle"><input type="checkbox" data-group="rca_branches" checked /><span class="dot" style="background:#ffb74d"></span> RCA Branches (Marginal, SA, AV) <span class="count-badge">7</span></label>
+  </div>
+</div>
+
+<!-- Right Anatomical & Prediction Inspector Card -->
+<div id="detail">
+  <strong>Anatomical Inspector</strong>
+  <span style="color:#8eb3dc;">Click any coronary artery or myocardial structure to inspect its anatomical name, territory, and model prediction.</span>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<!-- Bottom Disclaimer Bar -->
+<div class="footer-bar">
+  <span>BodyParts3D (BP51782) 106-Mesh Assembly · Research Prototype · Generic Reference Anatomy</span>
+  <span>Model estimates are statistical probabilities, not direct stenosis measurements · No clinical decisions</span>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+
+// Synchronized Prediction Telemetry State
+let isPredicted = (function() {
+  const raw = "{{IS_CUSTOM_PRED}}";
+  return raw === "true";
+})();
+
+let cardioData = (function() {
+  const cad = parseFloat("{{CAD_RISK}}") || 0;
+  const lad = parseFloat("{{LAD_RISK}}") || 0;
+  const lcx = parseFloat("{{LCX_RISK}}") || 0;
+  const rca = parseFloat("{{RCA_RISK}}") || 0;
+  return {
+    CAD: { risk: cad, label: "{{CAD_LABEL}}" || "CAD" },
+    LAD: { risk: lad, label: "{{LAD_LABEL}}" || "Stenotic" },
+    LCX: { risk: lcx, label: "{{LCX_LABEL}}" || "Stenotic" },
+    RCA: { risk: rca, label: "{{RCA_LABEL}}" || "Stenotic" }
+  };
+})();
+
+// Visualization Tier Definition (<50% Low, 50-69% Moderate, >=70% High)
+function getRiskTier(risk) {
+  const r = Number(risk || 0);
+  if (r >= 70.0) return { tierClass: 'high', tierLabel: 'High Est. Prob (≥70%)', color: '#ef4444' };
+  if (r >= 50.0) return { tierClass: 'moderate', tierLabel: 'Moderate Est. Prob (50–69%)', color: '#f59e0b' };
+  return { tierClass: 'low', tierLabel: 'Low Est. Prob (<50%)', color: '#10b981' };
+}
+
+
+// ---------------------------------------------------------------------------
+// Procedural Anatomical Tissue Micro-Texture Generator
+// ---------------------------------------------------------------------------
+// Generates fine myocardial fiber striations and subtle pericardial moisture
+// roughness without external texture assets or heavy memory footprint.
+function generateTissueTextures() {
+  const size = 512;
+  const nCanvas = document.createElement('canvas');
+  nCanvas.width = size;
+  nCanvas.height = size;
+  const nCtx = nCanvas.getContext('2d');
+  const nImg = nCtx.createImageData(size, size);
+  const nData = nImg.data;
+
+  const rCanvas = document.createElement('canvas');
+  rCanvas.width = size;
+  rCanvas.height = size;
+  const rCtx = rCanvas.getContext('2d');
+  const rImg = rCtx.createImageData(size, size);
+  const rData = rImg.data;
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const idx = (y * size + x) * 4;
+      
+      // Multi-frequency directional fiber striation pattern
+      const f1 = Math.sin((x * 1.4 + y * 0.9) * 0.14) * Math.cos((y * 1.4 - x * 0.7) * 0.16);
+      const f2 = Math.sin((x + y * 0.6) * 0.38) * 0.45;
+      const f3 = (Math.sin(x * 2.2) * Math.cos(y * 2.2)) * 0.20;
+      const grain = (Math.sin(x * 12.3 + y * 17.1) + Math.cos(x * 21.7 - y * 9.5)) * 0.12;
+      const h = f1 * 0.45 + f2 * 0.30 + f3 * 0.15 + grain;
+
+      // Normal slope computation (subtle micro-relief centered around RGB 128, 128, 246)
+      const dx = (Math.cos((x * 1.4 + y * 0.9) * 0.14) * 0.14 + grain * 0.08) * 28;
+      const dy = (Math.sin((y * 1.4 - x * 0.7) * 0.16) * 0.16 + grain * 0.08) * 28;
+      
+      const nx = Math.max(0, Math.min(255, Math.round(128 + dx)));
+      const ny = Math.max(0, Math.min(255, Math.round(128 + dy)));
+      const nz = 246; // Dominant positive Z normal for gentle micro-relief
+
+      nData[idx] = nx;
+      nData[idx + 1] = ny;
+      nData[idx + 2] = nz;
+      nData[idx + 3] = 255;
+
+      // Roughness map: organic living tissue variance (values ~105 to 140 -> 0.41 to 0.55)
+      const rVal = Math.max(0, Math.min(255, Math.round(115 + (h * 26))));
+      rData[idx] = rVal;
+      rData[idx + 1] = rVal;
+      rData[idx + 2] = rVal;
+      rData[idx + 3] = 255;
+    }
+  }
+
+  nCtx.putImageData(nImg, 0, 0);
+  rCtx.putImageData(rImg, 0, 0);
+
+  const normalTex = new THREE.CanvasTexture(nCanvas);
+  normalTex.wrapS = THREE.RepeatWrapping;
+  normalTex.wrapT = THREE.RepeatWrapping;
+  normalTex.repeat.set(6, 6);
+
+  const roughnessTex = new THREE.CanvasTexture(rCanvas);
+  roughnessTex.wrapS = THREE.RepeatWrapping;
+  roughnessTex.wrapT = THREE.RepeatWrapping;
+  roughnessTex.repeat.set(6, 6);
+
+  return { normalTex, roughnessTex };
+}
+
+const { normalTex: tissueNormalMap, roughnessTex: tissueRoughnessMap } = generateTissueTextures();
+
+// ---------------------------------------------------------------------------
+// Mesh Normal Smoothing & Cylindrical UV Architecture
+// ---------------------------------------------------------------------------
+// Welds shared vertices on non-indexed OBJ meshes to eliminate polygon faceting
+// without altering anatomical geometry, and computes smooth vertex normals.
+function prepareSmoothGeometry(geom) {
+  if (!geom || !geom.attributes.position) return geom;
+  
+  // 1. Ensure cylindrical/anatomical UV coordinates for procedural texture mapping
+  if (!geom.attributes.uv) {
+    geom.computeBoundingBox();
+    const bbox = geom.boundingBox;
+    const sizeZ = Math.max(bbox.max.z - bbox.min.z, 0.001);
+    const midX = (bbox.min.x + bbox.max.x) * 0.5;
+    const midY = (bbox.min.y + bbox.max.y) * 0.5;
+    const pos = geom.attributes.position;
+    const count = pos.count;
+    const uvs = new Float32Array(count * 2);
+
+    for (let i = 0; i < count; i++) {
+      const x = pos.getX(i);
+      const y = pos.getY(i);
+      const z = pos.getZ(i);
+      const angle = Math.atan2(y - midY, x - midX);
+      uvs[i * 2] = (angle + Math.PI) / (2 * Math.PI);
+      uvs[i * 2 + 1] = (z - bbox.min.z) / sizeZ;
+    }
+    geom.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+  }
+
+  // 2. Weld shared vertices and compute smooth vertex normals
+  try {
+    if (BufferGeometryUtils && typeof BufferGeometryUtils.mergeVertices === 'function') {
+      const merged = BufferGeometryUtils.mergeVertices(geom, 1e-4);
+      merged.computeVertexNormals();
+      return merged;
+    }
+  } catch (err) {
+    console.warn('Mesh normal smoothing fallback:', err);
+  }
+  
+  if (!geom.attributes.normal) {
+    geom.computeVertexNormals();
+  }
+  return geom;
+}
+
+// ---------------------------------------------------------------------------
+// Dynamic Coronary Risk & Realistic Tissue Architecture
+// ---------------------------------------------------------------------------
+let currentVisualizationMode = 'anatomy'; // 'anatomy' (default) | 'risk'
+let currentAppearanceStyle = 'clinical';  // 'clinical' (default) | 'realistic'
+
+// Continuous Visual Color Gradient:
+// Green (0% - #10b981) -> Amber (50% - #f59e0b) -> Red (100% - #ef4444)
+function getRiskGradientColor(probability) {
+  let p = Number(probability || 0);
+  if (p <= 1.0 && p > 0.0) p *= 100.0;
+  p = Math.max(0, Math.min(100, p));
+
+  const t = p / 100.0;
+  let r, g, b;
+  if (t <= 0.5) {
+    const u = t / 0.5;
+    r = Math.round(16 + u * (245 - 16));
+    g = Math.round(185 + u * (158 - 185));
+    b = Math.round(129 + u * (11 - 129));
+  } else {
+    const u = (t - 0.5) / 0.5;
+    r = Math.round(245 + u * (239 - 245));
+    g = Math.round(158 + u * (68 - 158));
+    b = Math.round(11 + u * (68 - 11));
+  }
+
+  const hexR = r.toString(16).padStart(2, '0');
+  const hexG = g.toString(16).padStart(2, '0');
+  const hexB = b.toString(16).padStart(2, '0');
+  return `#${hexR}${hexG}${hexB}`;
+}
+
+// Complete 106 Mesh Manifest
+const entries = [
+  {
+    "group": "ventricles",
+    "id": "MM474",
+    "label": "Free wall of left ventricle (LV free wall)",
+    "filename": "MM474_BP51876_FMA84850_Free wall of left ventricle.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM534",
+    "label": "Mural limb of supraventricular crest (Crista supraventricularis)",
+    "filename": "MM534_BP51828_FMA13258_Mural limb of supraventricular crest.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM538",
+    "label": "Wall of outflow part of right ventricle (RV infundibulum)",
+    "filename": "MM538_BP51878_FMA49208_Wall of outflow part of right ventricle.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM563",
+    "label": "Septal limb of supraventricular crest",
+    "filename": "MM563_BP51852_FMA13257_Septal limb of supraventricular crest.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM568",
+    "label": "Membranous part of interventricular septum proper",
+    "filename": "MM568_BP51893_FMA83468_Membranous part of interventricular septum proper.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM594",
+    "label": "Interventricular septum (muscular junction)",
+    "filename": "MM594_BP51936_FMA7134_Muscular part of interventricular septum.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM595",
+    "label": "Atrioventricular septum",
+    "filename": "MM595_BP51903_FMA7136_Atrioventricular septum.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM598",
+    "label": "Wall of inflow part of right ventricle (RV inflow)",
+    "filename": "MM598_BP51861_FMA49207_Wall of inflow part of right ventricle.obj"
+  },
+  {
+    "group": "ventricles",
+    "id": "MM600",
+    "label": "Muscular part of interventricular septum (IV septum)",
+    "filename": "MM600_BP51936_FMA7134_Muscular part of interventricular septum.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM532",
+    "label": "Septomarginal trabecula (Moderator band)",
+    "filename": "MM532_BP51848_FMA7272_Septomarginal trabecula.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM537",
+    "label": "Septal papillary muscle of right ventricle",
+    "filename": "MM537_BP51810_FMA7262_Septal papillary muscle of right ventricle.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM550",
+    "label": "Anterior papillary muscle of right ventricle",
+    "filename": "MM550_BP51806_FMA7260_Anterior papillary muscle of right ventricle.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM551",
+    "label": "Posterior papillary muscle of right ventricle",
+    "filename": "MM551_BP51803_FMA7261_Posterior papillary muscle of right ventricle.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM564",
+    "label": "Trabeculae carneae of right ventricle",
+    "filename": "MM564_BP51832_FMA7270_Trabecula carnea of right ventricle.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM599",
+    "label": "Trabeculae carneae of left ventricle",
+    "filename": "MM599_BP51796_FMA7271_Trabecula carnea of left ventricle.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM636",
+    "label": "Anterior papillary muscle of left ventricle",
+    "filename": "MM636_BP51794_FMA7264_Anterior papillary muscle of left ventricle.obj"
+  },
+  {
+    "group": "internal_myocardium",
+    "id": "MM637",
+    "label": "Posterior papillary muscle of left ventricle",
+    "filename": "MM637_BP51813_FMA7266_Posterior papillary muscle of left ventricle.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM456",
+    "label": "Lateral wall of left atrium",
+    "filename": "MM456_BP51862_FMA9306_Lateral wall of left atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM458",
+    "label": "Septal wall of left atrium",
+    "filename": "MM458_BP51886_FMA84095_Septal wall of left atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM459",
+    "label": "Wall of left auricle (Left atrial appendage)",
+    "filename": "MM459_BP51840_FMA9547_Wall of left auricle.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM460",
+    "label": "Superior wall of left atrium",
+    "filename": "MM460_BP51866_FMA9562_Superior wall of left atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM461",
+    "label": "Wall of right auricle proper (Right atrial appendage)",
+    "filename": "MM461_BP51819_FMA49299_Wall of right auricle proper.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM462",
+    "label": "Crista terminalis",
+    "filename": "MM462_BP51838_FMA9236_Crista terminalis.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM463",
+    "label": "Valve of inferior vena cava (Eustachian valve)",
+    "filename": "MM463_BP51847_FMA9240_Valve of inferior vena cava.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM466",
+    "label": "Pectinate muscle of right auricle",
+    "filename": "MM466_BP51829_FMA49298_Pectinate muscle of right auricle.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM467",
+    "label": "Tendon of Todaro",
+    "filename": "MM467_BP51841_FMA9277_Tendon of Todaro.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM559",
+    "label": "Anterior wall proper of right atrium",
+    "filename": "MM559_BP51843_FMA49285_Anterior wall proper of right atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM560",
+    "label": "Lateral wall proper of right atrium",
+    "filename": "MM560_BP51837_FMA49286_Lateral wall proper of right atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM590",
+    "label": "Septal wall (inferior) of right atrium",
+    "filename": "MM590_BP51888_FMA84094_Septal wall of right atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM591",
+    "label": "Septal wall (superior) of right atrium",
+    "filename": "MM591_BP51888_FMA84094_Septal wall of right atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM592",
+    "label": "Interatrial septum (proper)",
+    "filename": "MM592_BP51898_FMA7108_Interatrial septum.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM593",
+    "label": "Interatrial septum (fossa ovalis region)",
+    "filename": "MM593_BP51898_FMA7108_Interatrial septum.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM609",
+    "label": "Triangle of sinu-atrial node (Koch triangle landmark)",
+    "filename": "MM609_BP58397_FMA77435_Triangle of sinu-atrial node.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM632",
+    "label": "Anterior wall proper of left atrium",
+    "filename": "MM632_BP51844_FMA49292_Anterior wall proper of left atrium.obj"
+  },
+  {
+    "group": "atria",
+    "id": "MM633",
+    "label": "Posterior wall of left atrium",
+    "filename": "MM633_BP51882_FMA9542_Posterior wall of left atrium.obj"
+  },
+  {
+    "group": "great_vessels",
+    "id": "MM506",
+    "label": "Ascending aorta proper",
+    "filename": "MM506_BP51985_FMA23733_Ascending aorta proper.obj"
+  },
+  {
+    "group": "great_vessels",
+    "id": "MM558",
+    "label": "Wall of bulb of aorta (Aortic root & sinuses of Valsalva)",
+    "filename": "MM558_BP51975_FMA15098_Wall of bulb of aorta.obj"
+  },
+  {
+    "group": "great_vessels",
+    "id": "MM607",
+    "label": "Pulmonary trunk proper",
+    "filename": "MM607_BP58392_FMA15086_Pulmonary trunk proper.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM514",
+    "label": "Aortic annulus - Right posterior fibrous scallop",
+    "filename": "MM514_BP51916_FMA84617_Right posterior semilunar fibrous scallop of aortic valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM515",
+    "label": "Aortic annulus - Left posterior fibrous scallop",
+    "filename": "MM515_BP51913_FMA84616_Left posterior semilunar fibrous scallop of aortic valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM516",
+    "label": "Aortic annulus - Anterior fibrous scallop",
+    "filename": "MM516_BP51915_FMA84618_Anterior semilunar fibrous scallop of aortic valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM517",
+    "label": "Fibrous ring of aortic valve (segment 1)",
+    "filename": "MM517_BP51924_FMA9502_Fibrous ring of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM519",
+    "label": "Aortic valve - Right posterior cusp",
+    "filename": "MM519_BP51879_FMA7252_Right posterior cusp of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM520",
+    "label": "Fibrous ring of aortic valve (segment 2)",
+    "filename": "MM520_BP51924_FMA9502_Fibrous ring of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM521",
+    "label": "Aortic valve - Left posterior cusp",
+    "filename": "MM521_BP51864_FMA7254_Left posterior cusp of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM524",
+    "label": "Aortic valve - Anterior cusp",
+    "filename": "MM524_BP51927_FMA7253_Anterior cusp of aortic valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM526",
+    "label": "Left fibrous trigone of heart",
+    "filename": "MM526_BP51892_FMA9508_Left fibrous trigone of heart.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM529",
+    "label": "Fibrous ring of mitral valve (Mitral annulus)",
+    "filename": "MM529_BP51899_FMA9498_Fibrous ring of mitral valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM541",
+    "label": "Mitral valve - anterior leaflet",
+    "filename": "MM541_BP51877_FMA7242_Anterior leaflet of mitral valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM542",
+    "label": "Mitral valve - posterior leaflet",
+    "filename": "MM542_BP51793_FMA7243_Posterior leaflet of mitral valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM570",
+    "label": "Tricuspid valve - posterior leaflet",
+    "filename": "MM570_BP51920_FMA7239_Posterior leaflet of tricuspid valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM572",
+    "label": "Anulus proper of tricuspid valve",
+    "filename": "MM572_BP51918_FMA85237_Anulus proper of tricuspid valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM573",
+    "label": "Tricuspid valve - septal leaflet",
+    "filename": "MM573_BP51943_FMA7240_Septal leaflet of tricuspid valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM575",
+    "label": "Tricuspid valve - anterior leaflet",
+    "filename": "MM575_BP51930_FMA7238_Anterior leaflet of tricuspid valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM596",
+    "label": "Right fibrous trigone of heart",
+    "filename": "MM596_BP51912_FMA9505_Right fibrous trigone of heart.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM601",
+    "label": "Pulmonary annulus - Right anterior fibrous scallop",
+    "filename": "MM601_BP51900_FMA84619_Right anterior semilunar fibrous scallop of pulmonary valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM602",
+    "label": "Pulmonary annulus - Posterior fibrous scallop",
+    "filename": "MM602_BP58389_FMA84625_Posterior semilunar fibrous scallop of pulmonary valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM603",
+    "label": "Pulmonary annulus - Left anterior fibrous scallop",
+    "filename": "MM603_BP51914_FMA84626_Left anterior semilunar fibrous scallop of pulmonary valve anulus.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM604",
+    "label": "Pulmonary valve - Right anterior cusp",
+    "filename": "MM604_BP51948_FMA7249_Right anterior cusp of pulmonary valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM605",
+    "label": "Pulmonary valve - Posterior cusp",
+    "filename": "MM605_BP51935_FMA7250_Posterior cusp of pulmonary valve.obj"
+  },
+  {
+    "group": "valves",
+    "id": "MM606",
+    "label": "Pulmonary valve - Left anterior cusp",
+    "filename": "MM606_BP51921_FMA7247_Left anterior cusp of pulmonary valve.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM419",
+    "label": "Sinuatrial (SA) node",
+    "filename": "MM419_BP51825_FMA9477_Sinuatrial node.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM577",
+    "label": "Right bundle branch of AV bundle",
+    "filename": "MM577_BP51824_FMA9486_Right branch of atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM578",
+    "label": "Left bundle branch - Posterior division",
+    "filename": "MM578_BP51790_FMA9489_Posterior division of left branch of atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM579",
+    "label": "Left bundle branch - Septal division",
+    "filename": "MM579_BP51789_FMA83331_Septal division of left branch of atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM580",
+    "label": "Left bundle branch - Anterior division",
+    "filename": "MM580_BP51788_FMA9488_Anterior division of left branch of atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM582",
+    "label": "Posterior internodal tract (Thorel)",
+    "filename": "MM582_BP51827_FMA9483_Posterior internodal tract.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM583",
+    "label": "Middle internodal tract (Wenckebach)",
+    "filename": "MM583_BP51818_FMA9482_Middle internodal tract.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM584",
+    "label": "Atrial branch (Bachmann bundle)",
+    "filename": "MM584_BP51831_FMA84578_Atrial branch of anterior internodal tract.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM585",
+    "label": "Anterior internodal tract",
+    "filename": "MM585_BP51875_FMA9480_Anterior internodal tract.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM586",
+    "label": "Atrioventricular bundle (Bundle of His)",
+    "filename": "MM586_BP51792_FMA9484_Atrioventricular bundle.obj"
+  },
+  {
+    "group": "conduction_system",
+    "id": "MM587",
+    "label": "Atrioventricular (AV) node",
+    "filename": "MM587_BP51791_FMA9478_Atrioventricular node.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM446",
+    "label": "Anterior cardiac vein",
+    "filename": "MM446_BP58391_FMA76767_Anterior cardiac vein.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM447",
+    "label": "Great cardiac vein (anterior IV sulcus segment)",
+    "filename": "MM447_BP51947_FMA4707_Great cardiac vein.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM448",
+    "label": "Great cardiac vein (coronary sulcus tributary)",
+    "filename": "MM448_BP51947_FMA4707_Great cardiac vein.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM449",
+    "label": "Coronary sinus (main trunk)",
+    "filename": "MM449_BP51951_FMA4706_Coronary sinus.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM451",
+    "label": "Right marginal vein",
+    "filename": "MM451_BP51932_FMA4716_Right marginal vein.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM452",
+    "label": "Small cardiac vein",
+    "filename": "MM452_BP51938_FMA4714_Small cardiac vein.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM562",
+    "label": "Valve of coronary sinus (Thebesian valve)",
+    "filename": "MM562_BP51846_FMA9242_Valve of coronary sinus.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM634",
+    "label": "Coronary sinus (distal confluence)",
+    "filename": "MM634_BP51951_FMA4706_Coronary sinus.obj"
+  },
+  {
+    "group": "cardiac_veins",
+    "id": "MM638",
+    "label": "Coronary sinus (proximal atrial junction)",
+    "filename": "MM638_BP51951_FMA4706_Coronary sinus.obj"
+  },
+  {
+    "group": "left_coronary_stem",
+    "id": "MM557",
+    "label": "Left coronary stem (Left Main / LM trunk)",
+    "filename": "MM557_BP58405_FMA4685_Stem of left coronary artery.obj"
+  },
+  {
+    "group": "lad",
+    "id": "MM420",
+    "label": "LAD trunk - proximal segment",
+    "filename": "MM420_BP51969_FMA74912_Trunk of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad",
+    "id": "MM424",
+    "label": "LAD trunk - mid segment",
+    "filename": "MM424_BP51969_FMA74912_Trunk of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad",
+    "id": "MM425",
+    "label": "LAD trunk - distal segment",
+    "filename": "MM425_BP51969_FMA74912_Trunk of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM422",
+    "label": "LAD diagonal branch 1 (D1)",
+    "filename": "MM422_BP51972_FMA3860_Diagonal branch of anterior descending branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM423",
+    "label": "LAD diagonal branch 2 (D2)",
+    "filename": "MM423_BP51965_FMA3888_Second left anterior branch of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM431",
+    "label": "LAD anterior septal branch 1 (S1)",
+    "filename": "MM431_BP51970_FMA3893_Anterior septal branch of anterior interventricular artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM432",
+    "label": "LAD diagonal branch 3 (D3)",
+    "filename": "MM432_BP51962_FMA3890_Third left anterior branch of anterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM433",
+    "label": "LAD anterior septal branch 2 (S2)",
+    "filename": "MM433_BP51970_FMA3893_Anterior septal branch of anterior interventricular artery.obj"
+  },
+  {
+    "group": "lad_branches",
+    "id": "MM434",
+    "label": "LAD anterior septal branch 3 (S3)",
+    "filename": "MM434_BP51970_FMA3893_Anterior septal branch of anterior interventricular artery.obj"
+  },
+  {
+    "group": "lcx",
+    "id": "MM426",
+    "label": "LCX circumflex trunk - proximal segment",
+    "filename": "MM426_BP51973_FMA74923_Trunk of circumflex branch of left coronary artery.obj"
+  },
+  {
+    "group": "lcx",
+    "id": "MM635",
+    "label": "LCX circumflex trunk - distal segment",
+    "filename": "MM635_BP51973_FMA74923_Trunk of circumflex branch of left coronary artery.obj"
+  },
+  {
+    "group": "lcx_branches",
+    "id": "MM428",
+    "label": "LCX posterior ventricular branch",
+    "filename": "MM428_BP51937_FMA3914_First posterior ventricular branch of circumflex coronary artery.obj"
+  },
+  {
+    "group": "lcx_branches",
+    "id": "MM430",
+    "label": "LCX posterior interventricular branch (PDA in left-dominant)",
+    "filename": "MM430_BP58390_FMA79742_Trunk of posterior interventricular branch of left coronary artery.obj"
+  },
+  {
+    "group": "lcx_branches",
+    "id": "MM610",
+    "label": "LCX obtuse marginal branch (OM1)",
+    "filename": "MM610_BP51926_FMA3902_Left marginal artery.obj"
+  },
+  {
+    "group": "rca",
+    "id": "MM436",
+    "label": "RCA trunk - mid segment",
+    "filename": "MM436_BP51977_FMA3802_Trunk of right coronary artery.obj"
+  },
+  {
+    "group": "rca",
+    "id": "MM439",
+    "label": "RCA trunk - distal segment",
+    "filename": "MM439_BP51977_FMA3802_Trunk of right coronary artery.obj"
+  },
+  {
+    "group": "rca",
+    "id": "MM556",
+    "label": "RCA trunk - proximal (ostium to acute margin)",
+    "filename": "MM556_BP51977_FMA3802_Trunk of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM437",
+    "label": "RCA anterior ventricular branch",
+    "filename": "MM437_BP51980_FMA3815_First anterior ventricular branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM438",
+    "label": "RCA sinoatrial (SA) nodal branch",
+    "filename": "MM438_BP51922_FMA3823_Sinoatrial nodal branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM440",
+    "label": "RCA acute marginal branch",
+    "filename": "MM440_BP51950_FMA3818_Marginal branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM441",
+    "label": "RCA conus branch (infundibular)",
+    "filename": "MM441_BP51955_FMA3807_Conus branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM443",
+    "label": "RCA atrioventricular (AV) nodal branch",
+    "filename": "MM443_BP51952_FMA3851_Atrioventricular node branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM444",
+    "label": "RCA posterior ventricular branch",
+    "filename": "MM444_BP51956_FMA3837_First posterior ventricular branch of right coronary artery.obj"
+  },
+  {
+    "group": "rca_branches",
+    "id": "MM445",
+    "label": "RCA anterior atrial branch",
+    "filename": "MM445_BP51957_FMA3829_Anterior atrial branch of right coronary artery.obj"
+  }
+];
+
+// Dual Palettes: Clinical Identifiable vs Realistic Anatomical Shading
+const paletteClinical = {
+  ventricles: '#a3424c',         // Refined deep healthy myocardium
+  internal_myocardium: '#8e2a33',// Trabecular / papillary depth
+  atria: '#ba5862',              // Thin atrial wall myocardium
+  great_vessels: '#caa095',      // Aorta & pulmonary trunk fibro-elastic adventitia
+  valves: '#eee5d8',             // Fibrous annular rings & cusps
+  cardiac_veins: '#2a7da3',      // Identifiable venous blue
+  conduction_system: '#f5c542',  // Conduction bundles
+  left_coronary_stem: '#e6d6c2', // Neutral reference bone-white
+  lad: '#2a86ef',                // Identifiable LAD royal blue
+  lad_branches: '#4da1ff',       // LAD diagonals/septals
+  lcx: '#0fb77d',                // Identifiable LCX emerald green
+  lcx_branches: '#38d7a1',       // LCX marginals
+  rca: '#ff9900',                // Identifiable RCA amber orange
+  rca_branches: '#ffb74d'        // RCA acute marginals
+};
+
+// colorMap reference for backwards compatibility
+const colorMap = paletteClinical;
+
+function updateRiskLegendDisplay() {
+  const ladVal = Number(cardioData.LAD.risk || 0);
+  const lcxVal = Number(cardioData.LCX.risk || 0);
+  const rcaVal = Number(cardioData.RCA.risk || 0);
+
+  const ladColor = getRiskGradientColor(ladVal);
+  const lcxColor = getRiskGradientColor(lcxVal);
+  const rcaColor = getRiskGradientColor(rcaVal);
+
+  const dotLad = document.querySelector('#legendDotLAD');
+  const valLad = document.querySelector('#legendValLAD');
+  if (dotLad) dotLad.style.background = ladColor;
+  if (valLad) valLad.textContent = isPredicted ? `${ladVal.toFixed(1)}%` : '--';
+
+  const dotLcx = document.querySelector('#legendDotLCX');
+  const valLcx = document.querySelector('#legendValLCX');
+  if (dotLcx) dotLcx.style.background = lcxColor;
+  if (valLcx) valLcx.textContent = isPredicted ? `${lcxVal.toFixed(1)}%` : '--';
+
+  const dotRca = document.querySelector('#legendDotRCA');
+  const valRca = document.querySelector('#legendValRCA');
+  if (dotRca) dotRca.style.background = rcaColor;
+  if (valRca) valRca.textContent = isPredicted ? `${rcaVal.toFixed(1)}%` : '--';
+}
+
+function updateCategoryDotColors(palette) {
+  for (const [grp, col] of Object.entries(palette)) {
+    const input = document.querySelector(`[data-group="${grp}"]`);
+    if (input) {
+      const parent = input.closest('label');
+      if (parent) {
+        const dot = parent.querySelector('.dot');
+        if (dot) {
+          if (currentVisualizationMode === 'risk' && (grp === 'lad' || grp === 'lad_branches' || grp === 'lcx' || grp === 'lcx_branches' || grp === 'rca' || grp === 'rca_branches')) {
+            if (grp.startsWith('lad')) dot.style.background = getRiskGradientColor(cardioData.LAD.risk);
+            else if (grp.startsWith('lcx')) dot.style.background = getRiskGradientColor(cardioData.LCX.risk);
+            else if (grp.startsWith('rca')) dot.style.background = getRiskGradientColor(cardioData.RCA.risk);
+          } else {
+            dot.style.background = col;
+          }
+        }
+      }
+    }
+  }
+}
+
+function applyVisualizationState() {
+  const isRisk = (currentVisualizationMode === 'risk');
+
+  const modeAnatomyBtn = document.querySelector('#modeAnatomy');
+  const modeRiskBtn = document.querySelector('#modeRisk');
+  const styleClinicalBtn = document.querySelector('#styleClinical');
+  const riskLegendEl = document.querySelector('#riskLegend');
+
+  if (modeAnatomyBtn) modeAnatomyBtn.classList.toggle('active', !isRisk);
+  if (modeRiskBtn) modeRiskBtn.classList.toggle('active', isRisk);
+  if (styleClinicalBtn) styleClinicalBtn.classList.add('active');
+
+  if (riskLegendEl) {
+    riskLegendEl.style.display = isRisk ? 'block' : 'none';
+  }
+
+  const activePalette = paletteClinical;
+
+  // 1. Non-coronary tissues
+  for (const grp of heartGroups) {
+    if (materials[grp] && activePalette[grp]) {
+      materials[grp].color.set(activePalette[grp]);
+    }
+  }
+
+  // Left coronary stem always remains neutral reference bone-white
+  if (materials['left_coronary_stem']) {
+    materials['left_coronary_stem'].color.set(activePalette['left_coronary_stem'] || '#e6d6c2');
+  }
+
+  // 2. Coronary vessels (LAD, LCX, RCA and branches)
+  if (isRisk) {
+    // Risk Overlay Mode: ALWAYS color LAD, LCX, RCA according to model-predicted continuous gradient
+    const ladColor = getRiskGradientColor(cardioData.LAD.risk);
+    const lcxColor = getRiskGradientColor(cardioData.LCX.risk);
+    const rcaColor = getRiskGradientColor(cardioData.RCA.risk);
+
+    if (materials['lad']) materials['lad'].color.set(ladColor);
+    if (materials['lad_branches']) materials['lad_branches'].color.set(ladColor);
+    if (materials['lcx']) materials['lcx'].color.set(lcxColor);
+    if (materials['lcx_branches']) materials['lcx_branches'].color.set(lcxColor);
+    if (materials['rca']) materials['rca'].color.set(rcaColor);
+    if (materials['rca_branches']) materials['rca_branches'].color.set(rcaColor);
+  } else {
+    // Anatomy Mode: Use active appearance palette (identifiable vs natural arterial crimson)
+    if (materials['lad']) materials['lad'].color.set(activePalette['lad']);
+    if (materials['lad_branches']) materials['lad_branches'].color.set(activePalette['lad_branches']);
+    if (materials['lcx']) materials['lcx'].color.set(activePalette['lcx']);
+    if (materials['lcx_branches']) materials['lcx_branches'].color.set(activePalette['lcx_branches']);
+    if (materials['rca']) materials['rca'].color.set(activePalette['rca']);
+    if (materials['rca_branches']) materials['rca_branches'].color.set(activePalette['rca_branches']);
+  }
+
+  // 3. Update myocardial textures and roughness
+  for (const grp of ['ventricles', 'internal_myocardium', 'atria']) {
+    if (materials[grp]) {
+      materials[grp].normalMap = tissueNormalMap;
+      materials[grp].roughnessMap = tissueRoughnessMap;
+      materials[grp].normalScale.set(0.22, 0.22);
+      materials[grp].roughness = isRealistic ? 0.44 : 0.48;
+      materials[grp].metalness = isRealistic ? 0.05 : 0.08;
+      materials[grp].needsUpdate = true;
+    }
+  }
+  if (materials['great_vessels']) {
+    materials['great_vessels'].normalMap = tissueNormalMap;
+    materials['great_vessels'].normalScale.set(0.12, 0.12);
+    materials['great_vessels'].roughness = isRealistic ? 0.40 : 0.46;
+    materials['great_vessels'].needsUpdate = true;
+  }
+  for (const grp of arteryGroups) {
+    if (materials[grp]) {
+      materials[grp].roughness = 0.28;
+      materials[grp].metalness = 0.12;
+      materials[grp].needsUpdate = true;
+    }
+  }
+
+  updateCategoryDotColors(activePalette);
+  updateRiskLegendDisplay();
+
+  // If meshes are currently highlighted in purple, update their _originalSharedMaterial
+  for (const m of selectedClonedMeshes) {
+    if (m && m._originalSharedMaterial && m.userData && m.userData.group) {
+      const g = m.userData.group;
+      if (materials[g]) {
+        m._originalSharedMaterial.color.copy(materials[g].color);
+      }
+    }
+  }
+
+  if (!currentlySelectedMesh) {
+    updateArteryHighlighting();
+  }
+}
+
+function applyCoronaryMode(mode) {
+  currentVisualizationMode = (mode === 'risk') ? 'risk' : 'anatomy';
+  applyVisualizationState();
+}
+
+function setAppearanceStyle(style) {
+  currentAppearanceStyle = (style === 'realistic') ? 'realistic' : 'clinical';
+  applyVisualizationState();
+}
+
+const heartGroups = new Set([
+  'ventricles', 'internal_myocardium', 'atria', 'great_vessels', 
+  'valves', 'cardiac_veins', 'conduction_system'
+]);
+
+const arteryGroups = new Set([
+  'left_coronary_stem', 'lad', 'lad_branches', 'lcx', 'lcx_branches', 'rca', 'rca_branches'
+]);
+
+// Three.js Scene Setup
+const canvas = document.querySelector('#canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.08;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#071325');
+
+// In BodyParts3D dataset, Z is the superior/inferior anatomical axis:
+const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.01, 1000);
+camera.up.set(0, 0, 1);
+
+// OrbitControls Configuration
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.enableZoom = true;
+controls.zoomSpeed = 2.4 * Math.max(1, (window.devicePixelRatio | 0));
+controls.enableRotate = true;
+controls.enablePan = true;
+controls.screenSpacePanning = true;
+controls.minDistance = 2.6;
+controls.maxDistance = 35.0;
+
+// Professional Medical Studio Lighting
+// 1. Soft Ambient Illumination (clean clinical neutral dome, subtle deep cavity ground)
+const hemiLight = new THREE.HemisphereLight(0xf4f7fa, 0x141f2e, 0.75);
+scene.add(hemiLight);
+
+// 2. Directional Key Light (surgical key illumination from anterior-superior-left)
+const keyLight = new THREE.DirectionalLight(0xfff6eb, 1.85);
+keyLight.position.set(-3.8, -6.2, 5.5);
+scene.add(keyLight);
+
+// 3. Directional Fill Light (cool diffuse fill from lateral right to lift deep shadow contrast)
+const fillLight = new THREE.DirectionalLight(0xd8e6f8, 0.75);
+fillLight.position.set(5.2, 3.8, 2.2);
+scene.add(fillLight);
+
+// 4. Directional Rim / Kicker Light (crisp anatomical contour definition from posterior-superior)
+const rimLight = new THREE.DirectionalLight(0x99bdf2, 1.25);
+rimLight.position.set(0.0, 6.2, -4.2);
+scene.add(rimLight);
+
+// 5. Subtle Inferior Bounce Light (soft diaphragmatic bounce)
+const bounceLight = new THREE.DirectionalLight(0x2a384c, 0.40);
+bounceLight.position.set(0.0, -2.0, -5.5);
+scene.add(bounceLight);
+
+const root = new THREE.Group();
+scene.add(root);
+
+// Build High-Quality Anatomical Materials
+const materials = {};
+for (const [grp, col] of Object.entries(paletteClinical)) {
+  const isHeart = heartGroups.has(grp);
+  const isArtery = arteryGroups.has(grp);
+  const isVein = (grp === 'cardiac_veins');
+  const isConduction = (grp === 'conduction_system');
+  const isMyocardium = (grp === 'ventricles' || grp === 'internal_myocardium' || grp === 'atria');
+
+  materials[grp] = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(col),
+    roughness: isArtery ? 0.28 : isVein ? 0.32 : isConduction ? 0.35 : isMyocardium ? 0.46 : 0.50,
+    metalness: isArtery ? 0.12 : isVein ? 0.10 : isConduction ? 0.15 : 0.05,
+    transparent: true,
+    opacity: 1.0,
+    side: THREE.DoubleSide,
+    depthWrite: true,
+    emissive: new THREE.Color('#000000'),
+    emissiveIntensity: 0.5,
+    normalMap: isMyocardium ? tissueNormalMap : (grp === 'great_vessels' ? tissueNormalMap : null),
+    normalScale: isMyocardium ? new THREE.Vector2(0.22, 0.22) : new THREE.Vector2(0.12, 0.12),
+    roughnessMap: isMyocardium ? tissueRoughnessMap : null
+  });
+}
+
+const objectsByGroup = new Map();
+for (const grp of Object.keys(colorMap)) {
+  objectsByGroup.set(grp, []);
+}
+
+function setHeartOpacity(pct) {
+  const op = pct / 100;
+  for (const grp of heartGroups) {
+    if (materials[grp]) {
+      materials[grp].opacity = op;
+      materials[grp].depthWrite = op > 0.85;
+    }
+  }
+  document.querySelector('#opacityLabel').textContent = `${pct}%`;
+}
+
+function refreshVisibility() {
+  for (const [grp, objs] of objectsByGroup.entries()) {
+    const input = document.querySelector(`[data-group="${grp}"]`);
+    const visible = input ? input.checked : true;
+    for (const obj of objs) {
+      obj.visible = visible;
+      obj.traverse(child => {
+        if (child.isMesh && child.name !== 'selectionOutline') {
+          child.visible = visible;
+        }
+      });
+    }
+  }
+
+  // Requirement 8: When a selected structure's layer is unchecked, clear its selection highlight and reset the Anatomical Inspector.
+  if (currentlySelectedMesh && currentlySelectedMesh.userData) {
+    const selGroup = currentlySelectedMesh.userData.group;
+    const input = document.querySelector(`[data-group="${selGroup}"]`);
+    if (input && !input.checked) {
+      selectMesh(null);
+    }
+  }
+  if (selectedArterySystem) {
+    const groups = arterySystemMap[selectedArterySystem] || [];
+    const allChecked = groups.every(g => {
+      const input = document.querySelector(`[data-group="${g}"]`);
+      return input ? input.checked : true;
+    });
+    if (!allChecked) {
+      selectMesh(null);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Camera Framing Math (World-space Box3 and Sphere fitting)
+// ---------------------------------------------------------------------------
+let fittedDistance = 10.5;
+const defaultCamPos = new THREE.Vector3();
+let initialFitDone = false;
+
+function fitCameraToHeart(applyToCamera = true) {
+  if (!loaded.length) return;
+
+  root.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(root);
+  const sphere = box.getBoundingSphere(new THREE.Sphere());
+  const radius = Math.max(sphere.radius, 2.1);
+
+  const W = Math.max(window.innerWidth, 320);
+  const H = Math.max(window.innerHeight, 320);
+
+  const leftPanel = document.querySelector('.panel');
+  const rightPanel = document.querySelector('#detail');
+
+  // Measure overlay bounds in actual viewport coordinates
+  let leftMargin = 336;
+  if (leftPanel && leftPanel.offsetWidth > 0) {
+    leftMargin = leftPanel.offsetLeft + leftPanel.offsetWidth + 16;
+  }
+  let rightMargin = 356;
+  if (rightPanel && rightPanel.offsetWidth > 0) {
+    rightMargin = (W - rightPanel.offsetLeft) + 16;
+  }
+
+  const availW = Math.max(280, W - leftMargin - rightMargin);
+  const availH = Math.max(280, H - 72 - 45);
+
+  const fovRad = THREE.MathUtils.degToRad(camera.fov);
+  const tanV = Math.tan(fovRad / 2);
+  const tanH = tanV * (W / H);
+
+  const fracW = availW / W;
+  const fracH = availH / H;
+
+  const effTanV = tanV * fracH;
+  const effTanH = tanH * fracW;
+
+  // 25% comfortable padding margin for coronary branches and great vessels
+  const PADDING = 1.25;
+  const distV = (radius * PADDING) / effTanV;
+  const distH = (radius * PADDING) / effTanH;
+
+  fittedDistance = Math.max(distV, distH, 8.5);
+
+  controls.target.set(0, 0, 0);
+  
+  // Set dynamic zoom limits relative to loaded heart's bounding sphere
+  controls.minDistance = Math.max(radius * 1.35, 2.6);
+  controls.maxDistance = Math.max(fittedDistance * 3.5, 32.0);
+  controls.zoomSpeed = 2.4 * Math.max(1, (window.devicePixelRatio | 0));
+
+  // Clean projection matrix without view-offset shearing
+  camera.clearViewOffset();
+
+  // Default camera position: Anterior view with eye-level vertical alignment
+  defaultCamPos.set(0, -fittedDistance, 0.4);
+
+  if (applyToCamera) {
+    camera.position.copy(defaultCamPos);
+    camera.lookAt(controls.target);
+    controls.update();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Smooth Camera Transitions & Active Preset Indicators
+// ---------------------------------------------------------------------------
+let cameraTransition = null;
+
+function cancelCameraAnimation() {
+  if (cameraTransition) {
+    if (cameraTransition.intervalId) {
+      clearInterval(cameraTransition.intervalId);
+    }
+    cameraTransition = null;
+  }
+}
+
+function advanceCameraTransition() {
+  if (!cameraTransition) return;
+  const now = performance.now();
+  const elapsed = now - cameraTransition.startTime;
+  const progress = Math.min(elapsed / cameraTransition.duration, 1.0);
+  // Smooth cubic ease-out
+  const t = 1 - Math.pow(1 - progress, 3);
+
+  // Slerp direction around target
+  const curQ = new THREE.Quaternion().slerpQuaternions(cameraTransition.qStart, cameraTransition.qEnd, t);
+  const curDir = cameraTransition.startDir.clone().applyQuaternion(curQ).normalize();
+  const curDist = THREE.MathUtils.lerp(cameraTransition.startDist, cameraTransition.endDist, t);
+  const curTarget = new THREE.Vector3().lerpVectors(cameraTransition.startTarget, cameraTransition.endTarget, t);
+
+  controls.target.copy(curTarget);
+  camera.position.copy(curTarget).addScaledVector(curDir, curDist);
+  camera.lookAt(controls.target);
+  controls.update();
+
+  if (progress >= 1.0) {
+    camera.position.copy(cameraTransition.endPos);
+    controls.target.copy(cameraTransition.endTarget);
+    camera.lookAt(controls.target);
+    controls.update();
+    if (cameraTransition.intervalId) {
+      clearInterval(cameraTransition.intervalId);
+    }
+    cameraTransition = null;
+  }
+}
+
+function animateCameraTo(destPos, destTarget = new THREE.Vector3(0, 0, 0), duration = 500) {
+  cancelCameraAnimation();
+
+  const startPos = camera.position.clone();
+  const startTarget = controls.target.clone();
+  const endPos = destPos.clone();
+  const endTarget = destTarget.clone();
+
+  const startDist = startPos.distanceTo(startTarget);
+  const endDist = endPos.distanceTo(endTarget);
+
+  const startVec = startPos.clone().sub(startTarget);
+  const endVec = endPos.clone().sub(endTarget);
+
+  const startDir = startVec.clone().normalize();
+  const endDir = endVec.clone().normalize();
+
+  // If already at target direction and distance, finish immediately
+  if (startDir.dot(endDir) > 0.99999 && Math.abs(startDist - endDist) < 0.01) {
+    camera.position.copy(endPos);
+    controls.target.copy(endTarget);
+    camera.lookAt(controls.target);
+    controls.update();
+    return;
+  }
+
+  const qStart = new THREE.Quaternion();
+  const qEnd = new THREE.Quaternion().setFromUnitVectors(startDir, endDir);
+
+  cameraTransition = {
+    startPos,
+    startTarget,
+    endPos,
+    endTarget,
+    startDist,
+    endDist,
+    startDir,
+    endDir,
+    qStart,
+    qEnd,
+    startTime: performance.now(),
+    duration,
+    intervalId: null
+  };
+
+  // Dual driving: run backup interval so even if rAF is throttled in nested iframes, transition runs smoothly!
+  cameraTransition.intervalId = setInterval(advanceCameraTransition, 16);
+}
+
+function setActiveViewIndicator(viewName) {
+  document.querySelectorAll('.btn-view[data-view]').forEach(btn => {
+    if (btn.dataset.view === viewName) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+function setView(viewName, animate = true) {
+  // Capture current zoom distance from camera to controls.target
+  const currentDistance = camera.position.distanceTo(controls.target);
+  
+  // Use currentDistance for normal presets; fallback to fittedDistance if uninitialized
+  const validDist = (currentDistance > 0 && Number.isFinite(currentDistance)) ? currentDistance : (fittedDistance || 10.5);
+  // Ensure distance respects safety bounds
+  const clampedDist = Math.max(controls.minDistance, Math.min(controls.maxDistance, validDist));
+
+  const target = controls.target.clone(); // Preserve controls.target
+  const targetPos = new THREE.Vector3();
+
+  // Subtle eye-level elevation angle matching clinical anatomical orientation
+  const zElevation = 0.029;
+
+  if (viewName === 'reset') {
+    // Reset Perspective is the ONLY button that restores original fitted distance and center
+    target.set(0, 0, 0);
+    targetPos.copy(defaultCamPos.lengthSq() > 0 ? defaultCamPos : new THREE.Vector3(0, -fittedDistance, 0.4));
+    setActiveViewIndicator('front');
+  } else {
+    const dir = new THREE.Vector3();
+    switch (viewName) {
+      case 'front':  // Anterior (Sternocostal surface / LAD)
+        dir.set(0, -1, zElevation).normalize();
+        break;
+      case 'back':   // Posterior (Diaphragmatic surface)
+        dir.set(0, 1, zElevation).normalize();
+        break;
+      case 'left':   // Left lateral (LV obtuse margin / LCX)
+        dir.set(1, 0, zElevation).normalize();
+        break;
+      case 'right':  // Right lateral (RV / RA / RCA)
+        dir.set(-1, 0, zElevation).normalize();
+        break;
+      case 'top':    // Superior (Base / Great vessels: Aorta & PT)
+        // Small y offset avoids gimbal singularity with camera.up = (0, 0, 1)
+        dir.set(0, -0.01, 1).normalize();
+        break;
+      case 'bottom': // Inferior (Apex / diaphragmatic tip)
+        dir.set(0, -0.01, -1).normalize();
+        break;
+      default:
+        dir.set(0, -1, zElevation).normalize();
+        break;
+    }
+    // Position the camera along the new viewing direction USING currentDistance!
+    targetPos.copy(target).addScaledVector(dir, clampedDist);
+    setActiveViewIndicator(viewName);
+  }
+
+  if (animate) {
+    animateCameraTo(targetPos, target, 500);
+  } else {
+    cancelCameraAnimation();
+    camera.position.copy(targetPos);
+    controls.target.copy(target);
+    camera.lookAt(controls.target);
+    controls.update();
+  }
+}
+
+// User-interaction interrupts: Clear active view preset when user orbits/drags
+controls.addEventListener('start', () => {
+  cancelCameraAnimation();
+  setActiveViewIndicator(null);
+});
+
+// ---------------------------------------------------------------------------
+// Continuous Mouse-Wheel Zoom Fix & Event Shielding
+// ---------------------------------------------------------------------------
+// Prevent dashboard and iframe from capturing wheel events intended for the 3D canvas
+function handleWheelShield(e) {
+  const isScrollableOverlay = e.target && (e.target.closest('.panel') || e.target.closest('#detail'));
+  if (!isScrollableOverlay) {
+    e.preventDefault();
+  }
+  e.stopPropagation();
+  cancelCameraAnimation();
+}
+
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  cancelCameraAnimation();
+}, { passive: false });
+
+window.addEventListener('wheel', handleWheelShield, { passive: false });
+document.addEventListener('wheel', handleWheelShield, { passive: false });
+
+function applyPreset(preset) {
+  const completeBtn = document.querySelector('#presetComplete');
+  const coronaryBtn = document.querySelector('#presetCoronary');
+
+  if (preset === 'complete') {
+    completeBtn.classList.add('active');
+    coronaryBtn.classList.remove('active');
+    for (const g of heartGroups) {
+      const input = document.querySelector(`[data-group="${g}"]`);
+      if (input) input.checked = true;
+    }
+    for (const g of arteryGroups) {
+      const input = document.querySelector(`[data-group="${g}"]`);
+      if (input) input.checked = true;
+    }
+    document.querySelector('#opacity').value = 100;
+    setHeartOpacity(100);
+  } else if (preset === 'coronary') {
+    coronaryBtn.classList.add('active');
+    completeBtn.classList.remove('active');
+    for (const g of arteryGroups) {
+      const input = document.querySelector(`[data-group="${g}"]`);
+      if (input) input.checked = true;
+    }
+    for (const g of heartGroups) {
+      const input = document.querySelector(`[data-group="${g}"]`);
+      if (input) input.checked = true;
+    }
+    document.querySelector('#opacity').value = 25;
+    setHeartOpacity(25);
+
+    // In Coronary Focus mode, clear selection if an outer myocardium structure was selected
+    if (currentlySelectedMesh && currentlySelectedMesh.userData) {
+      const g = currentlySelectedMesh.userData.group;
+      if (g === 'ventricles' || g === 'atria' || g === 'great_vessels') {
+        selectMesh(null);
+      }
+    }
+  }
+  refreshVisibility();
+  // Preserves existing zoom level and camera position completely
+}
+
+// ---------------------------------------------------------------------------
+// Electric Purple (#B026FF) Selection & Artery Highlight Architecture
+// ---------------------------------------------------------------------------
+const ELECTRIC_PURPLE = '#B026FF';
+
+const arterySystemMap = {
+  lad: ['lad', 'lad_branches'],
+  lcx: ['lcx', 'lcx_branches'],
+  rca: ['rca', 'rca_branches'],
+  cad: ['left_coronary_stem']
+};
+
+let selectedArterySystem = null; // 'lad', 'lcx', 'rca', 'cad'
+let currentlySelectedMesh = null;
+let activeOutlineMeshes = [];
+
+// ---------------------------------------------------------------------------
+// Precision Outline Shader Architecture
+// ---------------------------------------------------------------------------
+const outlineVertexShader = `
+  uniform float outlineThickness;
+  uniform float aspect;
+  void main() {
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    vec4 clipPos = projectionMatrix * mvPosition;
+    vec3 viewNormal = normalize(normalMatrix * normal);
+    vec4 clipNormal = projectionMatrix * vec4(viewNormal, 0.0);
+    vec2 offset = clipNormal.xy;
+    offset.x /= aspect;
+    if (length(offset) > 0.0001) {
+      offset = normalize(offset);
+      offset.x /= aspect;
+      clipPos.xy += offset * (outlineThickness * clipPos.w);
+    }
+    gl_Position = clipPos;
+  }
+`;
+
+const outlineFragmentShader = `
+  uniform vec3 outlineColor;
+  uniform float outlineOpacity;
+  void main() {
+    gl_FragColor = vec4(outlineColor, outlineOpacity);
+  }
+`;
+
+function createOutlineMaterial(colorHex, thickness, opacity) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      outlineThickness: { value: thickness },
+      outlineColor: { value: new THREE.Color(colorHex) },
+      outlineOpacity: { value: opacity },
+      aspect: { value: window.innerWidth / window.innerHeight }
+    },
+    vertexShader: outlineVertexShader,
+    fragmentShader: outlineFragmentShader,
+    side: THREE.BackSide,
+    transparent: true,
+    depthWrite: false,
+    depthTest: true
+  });
+}
+
+// 1. Bright Electric Purple Selection Outline (~2.5px crisp edge)
+const outlineMaterial = createOutlineMaterial(ELECTRIC_PURPLE, 0.0032, 0.95);
+
+// 2. Subtle Bloom Glow Outline (~4.5px soft halo)
+const glowOutlineMaterial = createOutlineMaterial(ELECTRIC_PURPLE, 0.0058, 0.38);
+
+// Track all meshes with cloned materials for leak-proof exact restoration
+let selectedClonedMeshes = [];
+
+function applyElectricPurpleHighlight(mesh) {
+  if (!mesh || !mesh.isMesh) return;
+
+  // 1. Preserve original shared material for exact restoration on deselection
+  if (!mesh._originalSharedMaterial) {
+    mesh._originalSharedMaterial = mesh.material;
+  }
+
+  // 2. Clone material so unselected meshes remain completely untouched in their original colors
+  mesh.material = mesh.material.clone();
+  mesh.material.color.set(ELECTRIC_PURPLE);
+  mesh.material.emissive.set(ELECTRIC_PURPLE);
+  mesh.material.emissiveIntensity = 0.95;
+  mesh.material.roughness = 0.22;
+  mesh.material.metalness = 0.12;
+  mesh.material.transparent = true;
+  mesh.material.opacity = 1.0;
+  mesh.material.depthWrite = true;
+  selectedClonedMeshes.push(mesh);
+
+  // 3. Add bright Electric Purple selection outline
+  const om = new THREE.Mesh(mesh.geometry, outlineMaterial);
+  om.name = 'selectionOutline';
+  om.renderOrder = 998;
+  mesh.add(om);
+  activeOutlineMeshes.push(om);
+
+  // 4. Add subtle bloom glow outline
+  const gm = new THREE.Mesh(mesh.geometry, glowOutlineMaterial);
+  gm.name = 'selectionOutline';
+  gm.renderOrder = 997;
+  mesh.add(gm);
+  activeOutlineMeshes.push(gm);
+}
+
+function clearSelectionHighlights() {
+  // 1. Remove all outline meshes
+  for (const om of activeOutlineMeshes) {
+    if (om.parent) om.parent.remove(om);
+  }
+  activeOutlineMeshes = [];
+
+  // 2. Restore all selected cloned materials back to exact original shared materials
+  for (const m of selectedClonedMeshes) {
+    if (m && m._originalSharedMaterial) {
+      m.material = m._originalSharedMaterial;
+      delete m._originalSharedMaterial;
+    }
+  }
+  selectedClonedMeshes = [];
+
+  // Fallback single mesh restoration
+  if (currentlySelectedMesh && currentlySelectedMesh._originalSharedMaterial) {
+    currentlySelectedMesh.material = currentlySelectedMesh._originalSharedMaterial;
+    delete currentlySelectedMesh._originalSharedMaterial;
+  }
+  currentlySelectedMesh = null;
+  selectedArterySystem = null;
+
+  // Restore active coronary mode colors (Anatomy mode colors or Risk Overlay gradient colors)
+  applyCoronaryMode(currentVisualizationMode);
+
+  // 3. Restore all vessel opacities back to full visibility (1.0)
+  for (const g of arteryGroups) {
+    if (materials[g]) {
+      materials[g].opacity = 1.0;
+      materials[g].depthWrite = true;
+    }
+  }
+  if (materials['cardiac_veins']) {
+    materials['cardiac_veins'].opacity = 1.0;
+    materials['cardiac_veins'].depthWrite = true;
+  }
+
+  // 4. Restore baseline / prediction emissive colors on shared materials
+  updateArteryHighlighting();
+}
+
+function updateArteryHighlighting() {
+  function getEmissiveColor(risk, baseColorHex) {
+    const r = Number(risk || 0);
+    if (r >= 70.0) return baseColorHex;
+    if (r >= 50.0) return '#443322';
+    return '#000000';
+  }
+
+  // Reset baseline emissive and full opacity on all vessels
+  for (const g of arteryGroups) {
+    if (materials[g]) {
+      materials[g].emissive.set('#000000');
+      materials[g].emissiveIntensity = 0.50;
+      materials[g].opacity = 1.0;
+      materials[g].depthWrite = true;
+    }
+  }
+  if (materials['cardiac_veins']) {
+    materials['cardiac_veins'].emissive.set('#000000');
+    materials['cardiac_veins'].emissiveIntensity = 0.50;
+    materials['cardiac_veins'].opacity = 1.0;
+    materials['cardiac_veins'].depthWrite = true;
+  }
+
+  // If predictions are loaded and no artery is selected, show risk tier baseline illumination
+  if (isPredicted && !selectedArterySystem) {
+    if (materials['lad']) materials['lad'].emissive.set(getEmissiveColor(cardioData.LAD.risk, '#2a86ef'));
+    if (materials['lad_branches']) materials['lad_branches'].emissive.set(getEmissiveColor(cardioData.LAD.risk, '#1a5ea8'));
+    if (materials['lcx']) materials['lcx'].emissive.set(getEmissiveColor(cardioData.LCX.risk, '#0fb77d'));
+    if (materials['lcx_branches']) materials['lcx_branches'].emissive.set(getEmissiveColor(cardioData.LCX.risk, '#0a6344'));
+    if (materials['rca']) materials['rca'].emissive.set(getEmissiveColor(cardioData.RCA.risk, '#ff9900'));
+    if (materials['rca_branches']) materials['rca_branches'].emissive.set(getEmissiveColor(cardioData.RCA.risk, '#995c00'));
+    if (materials['left_coronary_stem']) materials['left_coronary_stem'].emissive.set('#000000');
+  }
+
+  // If an artery system is selected: dim non-selected vessels (opacity 0.40)
+  if (selectedArterySystem) {
+    const activeGroups = new Set(arterySystemMap[selectedArterySystem] || []);
+
+    for (const g of arteryGroups) {
+      if (!activeGroups.has(g) && materials[g]) {
+        materials[g].emissive.set('#000000');
+        materials[g].opacity = 0.40;
+        materials[g].depthWrite = false;
+      }
+    }
+    if (materials['cardiac_veins']) {
+      materials['cardiac_veins'].emissive.set('#000000');
+      materials['cardiac_veins'].opacity = 0.40;
+      materials['cardiac_veins'].depthWrite = false;
+    }
+  }
+}
+
+function updateSelectionPulse() {
+  if (!currentlySelectedMesh && !selectedArterySystem) return;
+
+  const pulse = 0.5 + 0.5 * Math.sin(performance.now() * 0.0035);
+  // Strong emissive glow pulse: 0.85 to 1.15
+  const emissiveIntensity = 0.85 + 0.30 * pulse;
+  const outlineOpacity = 0.88 + 0.12 * pulse;
+  const outlineThickness = 0.0032 + 0.0008 * pulse;
+
+  outlineMaterial.uniforms.outlineOpacity.value = outlineOpacity;
+  outlineMaterial.uniforms.outlineThickness.value = outlineThickness;
+  glowOutlineMaterial.uniforms.outlineOpacity.value = 0.32 + 0.14 * pulse;
+  glowOutlineMaterial.uniforms.outlineThickness.value = 0.0055 + 0.0012 * pulse;
+
+  // Pulse all selected meshes in bright Electric Purple
+  for (const m of selectedClonedMeshes) {
+    if (m && m.material) {
+      m.material.emissiveIntensity = emissiveIntensity;
+    }
+  }
+}
+
+function updateHUDTelemetry() {
+  const statusPill = document.querySelector('#globalStatusPill');
+  const statusText = document.querySelector('#globalStatusText');
+  const spinner = document.querySelector('#globalSpinner');
+
+  if (isPredicted) {
+    statusPill.className = 'status-pill predicted';
+    statusText.textContent = 'Predictions Synchronized';
+    if (spinner) spinner.style.display = 'none';
+
+    document.querySelector('#val-cad').textContent = Number(cardioData.CAD.risk).toFixed(1) + '%';
+    document.querySelector('#val-lad').textContent = Number(cardioData.LAD.risk).toFixed(1) + '%';
+    document.querySelector('#val-lcx').textContent = Number(cardioData.LCX.risk).toFixed(1) + '%';
+    document.querySelector('#val-rca').textContent = Number(cardioData.RCA.risk).toFixed(1) + '%';
+  } else {
+    statusPill.className = 'status-pill awaiting';
+    statusText.textContent = 'Awaiting Prediction';
+    if (spinner) spinner.style.display = 'none';
+
+    document.querySelector('#val-cad').textContent = '--';
+    document.querySelector('#val-lad').textContent = '--';
+    document.querySelector('#val-lcx').textContent = '--';
+    document.querySelector('#val-rca').textContent = '--';
+  }
+  updateArteryHighlighting();
+}
+
+function selectMesh(obj) {
+  clearSelectionHighlights();
+
+  const detail = document.querySelector('#detail');
+  if (!obj || !obj.userData) {
+    detail.innerHTML = `
+      <strong>Anatomical Inspector</strong>
+      <div style="color:#8eb3dc; font-size:10.5px; margin-top:4px; line-height:1.4;">
+        Click any coronary artery or myocardial structure to inspect its anatomical name, vascular territory, and live model prediction.
+      </div>
+      <div style="margin-top:12px; padding:10px 12px; background:#11253d; border-radius:8px; border:1px solid #1e416a;">
+        <div style="font-size:10px; font-weight:700; color:#cbd5e1; margin-bottom:5px;">INTERACTIVE NAVIGATION</div>
+        <div style="font-size:10px; color:#8eb3dc; line-height:1.4;">
+          • Click <b>LAD</b>, <b>LCX</b>, or <b>RCA</b> chips above to rotate and isolate vascular territories.<br/>
+          • Toggle anatomical layers or adjust myocardium opacity on the left panel.<br/>
+          • Left click + drag to orbit, right click to pan, mouse-wheel to continuously zoom.
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const grp = obj.userData.group;
+  const isCoronaryVessel = (grp === 'lad' || grp === 'lad_branches' || grp === 'lcx' || grp === 'lcx_branches' || grp === 'rca' || grp === 'rca_branches');
+  const activePalette = paletteClinical;
+  const activeColor = (currentVisualizationMode === 'risk' && isCoronaryVessel && materials[grp])
+    ? '#' + materials[grp].color.getHexString()
+    : (activePalette[grp] || (materials[grp] ? '#' + materials[grp].color.getHexString() : '#fff'));
+  const col = activeColor;
+  const name = obj.userData.label || obj.userData.id;
+  const filename = obj.userData.filename;
+  const isArtery = arteryGroups.has(grp);
+
+  // Determine vascular territory group
+  if (grp === 'lad' || grp === 'lad_branches') {
+    selectedArterySystem = 'lad';
+  } else if (grp === 'lcx' || grp === 'lcx_branches') {
+    selectedArterySystem = 'lcx';
+  } else if (grp === 'rca' || grp === 'rca_branches') {
+    selectedArterySystem = 'rca';
+  } else if (grp === 'left_coronary_stem') {
+    selectedArterySystem = 'cad';
+  } else {
+    selectedArterySystem = null;
+  }
+
+  currentlySelectedMesh = obj;
+
+  if (isArtery && selectedArterySystem) {
+    // 1. Dim unselected vessels (opacity 0.40)
+    updateArteryHighlighting();
+
+    // 2. Highlight all meshes in selected coronary territory (trunk + branches) together in bright Electric Purple!
+    const activeGroups = new Set(arterySystemMap[selectedArterySystem] || []);
+    root.traverse(c => {
+      if (c.isMesh && activeGroups.has(c.userData.group)) {
+        applyElectricPurpleHighlight(c);
+      }
+    });
+  } else {
+    // Single selected component (vein, wall, valve, conduction, internal myocardium, etc.):
+    // Turn the selected mesh bright Electric Purple with strong emissive glow and outline!
+    applyElectricPurpleHighlight(obj);
+  }
+
+  let territory = '';
+  let targetModel = null;
+  let modelReliability = '';
+  let vesselDesc = '';
+
+  if (grp === 'lad' || grp === 'lad_branches') {
+    targetModel = 'LAD';
+    territory = 'LAD VASCULAR TERRITORY (Anterior Wall & Apex)';
+    modelReliability = 'Primary high-performance vascular classifier (AUC 0.88). Strong validation for anterior myocardial infarction risk.';
+    vesselDesc = 'Courses within the anterior interventricular sulcus, perfusing the anterior LV myocardium, apex, and anterior 2/3 of the interventricular septum.';
+  } else if (grp === 'lcx' || grp === 'lcx_branches') {
+    targetModel = 'LCX';
+    territory = 'LCX VASCULAR TERRITORY (Lateral Free Wall & Base)';
+    modelReliability = '⚠ Moderately trained vascular classifier (AUC 0.76). Higher false-negative rate in isolated obtuse marginal lesions; requires additional clinical caution.';
+    vesselDesc = 'Courses along the left atrioventricular sulcus, perfusing the lateral and posterolateral left ventricular walls.';
+  } else if (grp === 'rca' || grp === 'rca_branches') {
+    targetModel = 'RCA';
+    territory = 'RCA VASCULAR TERRITORY (Right Ventricle & Nodes)';
+    modelReliability = '⚠ Moderate-power classifier (AUC 0.77). Sensitivity varies across coronary dominance patterns; interpret cautiously alongside clinical findings.';
+    vesselDesc = 'Occupies the right coronary sulcus, perfusing the right ventricle, inferior LV wall, and cardiac conduction nodes (SA/AV).';
+  } else if (grp === 'left_coronary_stem') {
+    targetModel = 'CAD';
+    territory = 'LEFT CORONARY STEM · ANATOMICAL JUNCTION';
+    modelReliability = 'Primary clinical ensemble CAD risk model (AUC 0.92). Evaluates systemic multi-vessel atherogenic risk profile across the coronary tree.';
+    vesselDesc = 'Originates from the left aortic sinus, bifurcating into the LAD and LCX trunks. Maintained in neutral reference color (#E6D6C2) because vessel-level stenosis models classify downstream LAD, LCX, and RCA territories.';
+  } else {
+    territory = 'CARDIAC ANATOMY · ' + grp.toUpperCase().replace(/_/g, ' ');
+    vesselDesc = 'Non-target cardiac anatomical structure. Reference geometry provided by BodyParts3D (BP51782) dataset.';
+  }
+
+  let predBlock = '';
+  if (grp === 'left_coronary_stem') {
+    // Dedicated Global CAD Prediction presentation (Explicitly clarifies this is NOT localized LM stenosis)
+    if (isPredicted && cardioData.CAD) {
+      const cadRisk = Number(cardioData.CAD.risk);
+      const tier = getRiskTier(cadRisk);
+      predBlock = `
+        <div class="pred-box tier-${tier.tierClass}" style="border:1px solid rgba(148,163,184,0.35); background:rgba(15,23,42,0.88);">
+          <div class="pred-row">
+            <span style="font-size:11px; font-weight:800; color:#cbd5e1;">Global CAD Prediction:</span>
+            <span class="tier-badge ${tier.tierClass}">${tier.tierLabel}</span>
+          </div>
+          <div class="pred-row" style="margin-top:5px;">
+            <span style="font-size:10.5px; color:#94a3b8;">Patient-level CAD probability:</span>
+            <span class="pred-val" style="color:#e2e8f0; font-size:13.5px; font-weight:800;">${cadRisk.toFixed(1)}%</span>
+          </div>
+          <div style="margin-top:6px; padding:7px 9px; background:rgba(30,41,59,0.7); border-radius:6px; border-left:3px solid #38bdf8;">
+            <div style="font-size:10px; font-weight:700; color:#38bdf8; margin-bottom:2px;">Not a Localized Left-Main Stenosis Prediction</div>
+            <div style="font-size:9.5px; color:#cbd5e1; line-height:1.35;">
+              This estimate reflects global patient-level CAD probability across the coronary tree, <em>not</em> an isolated left-main (LM) artery stenosis.
+            </div>
+          </div>
+          <div class="pred-row" style="margin-top:7px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.08);">
+            <span style="font-size:10px; color:#94a3b8;">Vessel Visual Classification:</span>
+            <span style="display:flex; align-items:center; gap:5px; font-size:10px; font-weight:700; color:#e6d6c2;">
+              <span class="dot" style="background:#e6d6c2; width:8px; height:8px;"></span>
+              Neutral Reference (#E6D6C2)
+            </span>
+          </div>
+          <div class="caution-text" style="margin-top:6px;">
+            <strong>Model Architecture:</strong> ${modelReliability}
+          </div>
+          <div class="disclaimer-note" style="margin-top:5px;">
+            <b>Clinical Guidance:</b> Vessel-level stenosis predictions are evaluated specifically for LAD, LCX, and RCA branches. The Left Main trunk remains neutral because it is not an isolated lesion classifier target.
+          </div>
+        </div>
+      `;
+    } else {
+      predBlock = `
+        <div class="pred-box tier-awaiting" style="border:1px solid rgba(148,163,184,0.35);">
+          <div class="pred-row">
+            <span style="font-size:11px; font-weight:800; color:#94a3b8;">Global CAD Prediction</span>
+            <span class="tier-badge awaiting">Awaiting Prediction</span>
+          </div>
+          <div style="font-size:10.5px; font-weight:600; color:#fbbf24; margin:6px 0 3px;">
+            Awaiting Prediction — Run Predict Risk to calculate global CAD risk.
+          </div>
+          <div style="margin-top:5px; padding:6px 8px; background:rgba(30,41,59,0.7); border-radius:6px; border-left:3px solid #38bdf8; font-size:9.5px; color:#cbd5e1; line-height:1.35;">
+            <b>Notice:</b> Global CAD evaluates patient-wide atherogenic risk, not isolated LM stenosis. The left coronary stem is kept in neutral color.
+          </div>
+          <div class="pred-row" style="margin-top:6px; padding-top:5px; border-top:1px solid rgba(255,255,255,0.08);">
+            <span style="font-size:10px; color:#94a3b8;">Vessel Visual Classification:</span>
+            <span style="display:flex; align-items:center; gap:5px; font-size:10px; font-weight:700; color:#e6d6c2;">
+              <span class="dot" style="background:#e6d6c2; width:8px; height:8px;"></span>
+              Neutral Reference (#E6D6C2)
+            </span>
+          </div>
+        </div>
+      `;
+    }
+  } else if (targetModel) {
+    if (isPredicted && cardioData[targetModel]) {
+      const riskVal = Number(cardioData[targetModel].risk);
+      const tier = getRiskTier(riskVal);
+      const continuousRiskColor = getRiskGradientColor(riskVal);
+      predBlock = `
+        <div class="pred-box tier-${tier.tierClass}">
+          <div class="pred-row">
+            <span style="font-size:10.5px; font-weight:750; color:#cbd5e1;">Target Model: ${targetModel} Stenosis Risk</span>
+            <span class="tier-badge ${tier.tierClass}">${tier.tierLabel}</span>
+          </div>
+          <div class="pred-row" style="margin-top:5px;">
+            <span style="font-size:10.5px; color:#94a3b8;">Model-estimated stenosis probability:</span>
+            <span class="pred-val" style="color:${continuousRiskColor}; font-size:13px; font-weight:750;">${riskVal.toFixed(1)}%</span>
+          </div>
+          <div class="pred-row" style="margin-top:3px;">
+            <span style="font-size:10px; color:#94a3b8;">Continuous gradient color:</span>
+            <span style="display:flex; align-items:center; gap:5px; font-size:10px; font-weight:700; color:${continuousRiskColor};">
+              <span class="dot" style="background:${continuousRiskColor};width:8px;height:8px;"></span>
+              ${continuousRiskColor.toUpperCase()}
+            </span>
+          </div>
+          <div class="caution-text">
+            <strong>Model Reliability:</strong> ${modelReliability}
+          </div>
+          <div class="disclaimer-note">
+            <b>Important:</b> This estimate is a statistical outcome probability, not a direct measurement of physical arterial narrowing or a confirmed clinical diagnosis.
+          </div>
+        </div>
+      `;
+    } else {
+      predBlock = `
+        <div class="pred-box tier-awaiting">
+          <div class="pred-row">
+            <span style="font-size:10.5px; font-weight:750; color:#94a3b8;">Target Model: ${targetModel} Stenosis Risk</span>
+            <span class="tier-badge awaiting">Awaiting Prediction</span>
+          </div>
+          <div style="font-size:11px; font-weight:600; color:#fbbf24; margin:6px 0 3px;">
+            Awaiting Prediction — Run Predict Risk to display model estimates.
+          </div>
+          <div style="font-size:10px; color:#94a3b8; line-height:1.35;">
+            Model estimates require patient clinical features. Enter clinical values in the dashboard form and click <b>Predict Cardiovascular Risk</b>.
+          </div>
+          <div class="caution-text">
+            <strong>Model Architecture:</strong> ${modelReliability}
+          </div>
+          <div class="disclaimer-note">
+            <b>Important:</b> This estimate is a statistical outcome probability, not a direct measurement of physical arterial narrowing or a confirmed clinical diagnosis.
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  detail.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      <span class="dot" style="background:${col};width:10px;height:10px;"></span>
+      <strong>${name}</strong>
+    </div>
+    <div class="sublabel">${territory}</div>
+    <div class="filename">BodyParts3D Source: ${filename}</div>
+    <div style="font-size:10.5px; color:#8eb3dc; margin-top:5px; line-height:1.35;">${vesselDesc}</div>
+    ${predBlock}
+  `;
+}
+
+// Window focus handler for top chips
+window.focusVesselGroup = function(vessel) {
+  document.querySelectorAll('.telem-chip').forEach(c => c.classList.remove('active'));
+  const chip = document.querySelector('#chip-' + vessel);
+  if (chip) chip.classList.add('active');
+
+  function getFirstMesh(grp) {
+    const objs = objectsByGroup.get(grp);
+    if (!objs || !objs.length) return null;
+    let target = null;
+    for (const obj of objs) {
+      obj.traverse(c => {
+        if (c.isMesh && !target) target = c;
+      });
+      if (target) break;
+    }
+    return target;
+  }
+
+  if (vessel === 'lad') {
+    const input = document.querySelector('[data-group="lad"]');
+    if (input && !input.checked) { input.checked = true; refreshVisibility(); }
+    setView('front');
+    const m = getFirstMesh('lad');
+    if (m) selectMesh(m);
+  } else if (vessel === 'lcx') {
+    const input = document.querySelector('[data-group="lcx"]');
+    if (input && !input.checked) { input.checked = true; refreshVisibility(); }
+    setView('left');
+    const m = getFirstMesh('lcx');
+    if (m) selectMesh(m);
+  } else if (vessel === 'rca') {
+    const input = document.querySelector('[data-group="rca"]');
+    if (input && !input.checked) { input.checked = true; refreshVisibility(); }
+    setView('right');
+    const m = getFirstMesh('rca');
+    if (m) selectMesh(m);
+  } else if (vessel === 'cad') {
+    const input = document.querySelector('[data-group="left_coronary_stem"]');
+    if (input && !input.checked) { input.checked = true; refreshVisibility(); }
+    setView('front');
+    const m = getFirstMesh('left_coronary_stem');
+    if (m) selectMesh(m);
+  }
+};
+
+// Concurrency-controlled OBJ Loader with Dynamic Base URL
+const loader = new OBJLoader();
+const loaded = [];
+let failures = 0;
+
+const MODEL_BASE_URL = (function() {
+  if (window.CARDIO_MODEL_BASE) return window.CARDIO_MODEL_BASE;
+  if (window.location.port === '8000') return './models/';
+  if (window.location.port === '8502') return '/models/';
+  return 'http://127.0.0.1:8502/models/';
+})();
+
+async function loadMeshWithRetry(entry, maxRetries = 2) {
+  const path = MODEL_BASE_URL + encodeURIComponent(entry.filename);
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const obj = await loader.loadAsync(path);
+      obj.userData = { ...entry };
+      
+      const isArtery = arteryGroups.has(entry.group);
+      const isVein = (entry.group === 'cardiac_veins');
+      const isConduction = (entry.group === 'conduction_system');
+      
+      obj.traverse((child) => {
+        if (child.isMesh) {
+          if (child.geometry) {
+            child.geometry = prepareSmoothGeometry(child.geometry);
+          }
+          child.material = materials[entry.group];
+          child.userData = { ...entry };
+          child.renderOrder = isArtery ? 15 : isVein ? 10 : isConduction ? 12 : 1;
+        }
+      });
+      return obj;
+    } catch (e) {
+      if (attempt === maxRetries) throw e;
+      await new Promise(r => setTimeout(r, 200 * (attempt + 1)));
+    }
+  }
+}
+
+let isViewerActive = true;
+document.addEventListener('visibilitychange', () => {
+  isViewerActive = !document.hidden;
+});
+
+async function loadAllMeshes() {
+  const statusEl = document.querySelector('#loadStatus');
+  const CONCURRENCY = 8;
+  let nextIdx = 0;
+  let completed = 0;
+
+  async function worker() {
+    while (nextIdx < entries.length) {
+      const idx = nextIdx++;
+      const entry = entries[idx];
+      try {
+        const obj = await loadMeshWithRetry(entry);
+        root.add(obj);
+        objectsByGroup.get(entry.group).push(obj);
+        loaded.push(obj);
+      } catch (err) {
+        failures++;
+        console.error('Failed to load', entry.filename, err);
+      } finally {
+        completed++;
+        statusEl.innerHTML = `<span class="spinner"></span> Loading ${completed}/${entries.length} meshes (${Math.round(completed/entries.length*100)}%)...`;
+      }
+    }
+  }
+
+  const workers = Array.from({ length: CONCURRENCY }, () => worker());
+  await Promise.all(workers);
+
+  if (loaded.length) {
+    const bounds = new THREE.Box3().setFromObject(root);
+    const center = bounds.getCenter(new THREE.Vector3());
+    const size = bounds.getSize(new THREE.Vector3());
+    const maxDimension = Math.max(size.x, size.y, size.z);
+    if (maxDimension > 0 && Number.isFinite(maxDimension)) {
+      const scale = 4.2 / maxDimension;
+      root.scale.setScalar(scale);
+      root.position.copy(center).multiplyScalar(-scale);
+    }
+  }
+
+  root.updateMatrixWorld(true);
+  fitCameraToHeart(true);
+  setView('front', false);
+  initialFitDone = true;
+  refreshVisibility();
+  updateHUDTelemetry();
+  updateRiskLegendDisplay();
+  applyCoronaryMode(currentVisualizationMode);
+
+  if (failures === 0) {
+    statusEl.innerHTML = `<span style="color:#4ade80;">✓</span> Complete heart loaded (${loaded.length}/${entries.length} meshes)`;
+  } else {
+    statusEl.innerHTML = `<span style="color:#fbbf24;">⚠</span> ${loaded.length}/${entries.length} loaded · ${failures} failed`;
+  }
+}
+
+// Global In-Memory API for Synchronizing with Parent Dashboard
+window.CardioVision3D = {
+  camera: camera,
+  controls: controls,
+  scene: scene,
+  renderer: renderer,
+  setVisualizationMode: applyCoronaryMode,
+  getVisualizationMode: () => currentVisualizationMode,
+  setAppearanceStyle: setAppearanceStyle,
+  getAppearanceStyle: () => currentAppearanceStyle,
+  getRiskGradientColor: getRiskGradientColor,
+  updateProbabilities: function(data) {
+    if (!data) return;
+    isPredicted = true;
+    if (data.CAD && data.CAD.risk !== undefined) cardioData.CAD = { risk: Number(data.CAD.risk), label: data.CAD.label || 'CAD' };
+    if (data.LAD && data.LAD.risk !== undefined) cardioData.LAD = { risk: Number(data.LAD.risk), label: data.LAD.label || 'Stenotic' };
+    if (data.LCX && data.LCX.risk !== undefined) cardioData.LCX = { risk: Number(data.LCX.risk), label: data.LCX.label || 'Stenotic' };
+    if (data.RCA && data.RCA.risk !== undefined) cardioData.RCA = { risk: Number(data.RCA.risk), label: data.RCA.label || 'Stenotic' };
+    updateHUDTelemetry();
+    updateRiskLegendDisplay();
+    if (currentVisualizationMode === 'risk') {
+      applyCoronaryMode('risk');
+    }
+    if (currentlySelectedMesh) selectMesh(currentlySelectedMesh);
+  },
+  reset: function() {
+    isPredicted = false;
+    clearSelectionHighlights();
+    cardioData = {
+      CAD: { risk: 0, label: 'Awaiting' },
+      LAD: { risk: 0, label: 'Awaiting' },
+      LCX: { risk: 0, label: 'Awaiting' },
+      RCA: { risk: 0, label: 'Awaiting' }
+    };
+    updateHUDTelemetry();
+    updateRiskLegendDisplay();
+    applyCoronaryMode(currentVisualizationMode);
+    selectMesh(null);
+  },
+  setView: setView,
+  selectMesh: selectMesh,
+  clearSelectionHighlights: clearSelectionHighlights,
+  applyPreset: applyPreset,
+  animateCameraTo: animateCameraTo,
+  cancelCameraAnimation: cancelCameraAnimation,
+  fitCamera: function(forceReset = false) {
+    if (forceReset) fitCameraToHeart(true);
+  },
+  onTabVisible: function() {
+    isViewerActive = true;
+    onWindowResize();
+  }
+};
+window.THREE = THREE;
+window.scene = scene;
+window.root = root;
+window.renderer = renderer;
+window.camera = camera;
+window.controls = controls;
+window.materials = materials;
+window.clearSelectionHighlights = clearSelectionHighlights;
+window.selectMesh = selectMesh;
+window.setView = setView;
+window.applyCoronaryMode = applyCoronaryMode;
+window.setAppearanceStyle = setAppearanceStyle;
+window.getAppearanceStyle = () => currentAppearanceStyle;
+window.getRiskGradientColor = getRiskGradientColor;
+window.getCurrentVisualizationMode = () => currentVisualizationMode;
+window.getActiveOutlineMeshes = () => activeOutlineMeshes;
+window.getSelectedArterySystem = () => selectedArterySystem;
+window.getCurrentlySelectedMesh = () => currentlySelectedMesh;
+window.arterySystemMap = arterySystemMap;
+window.outlineMaterial = outlineMaterial;
+window.glowOutlineMaterial = glowOutlineMaterial;
+window.getSelectedClonedMeshes = () => selectedClonedMeshes;
+window.isMeshEligibleForRaycast = isMeshEligibleForRaycast;
+window.getSelectableMeshes = getSelectableMeshes;
+
+// Validated postMessage Protocol
+window.addEventListener('message', function(ev) {
+  if (!ev || !ev.data || typeof ev.data !== 'object') return;
+  
+  if (ev.data.type === 'UPDATE_CARDIO_DATA' && ev.data.data) {
+    const d = ev.data.data;
+    function validRisk(val) { return typeof val === 'number' && !isNaN(val) && val >= 0 && val <= 100; }
+    
+    if (d.CAD && validRisk(Number(d.CAD.risk))) cardioData.CAD = { risk: Number(d.CAD.risk), label: String(d.CAD.label || '') };
+    if (d.LAD && validRisk(Number(d.LAD.risk))) cardioData.LAD = { risk: Number(d.LAD.risk), label: String(d.LAD.label || '') };
+    if (d.LCX && validRisk(Number(d.LCX.risk))) cardioData.LCX = { risk: Number(d.LCX.risk), label: String(d.LCX.label || '') };
+    if (d.RCA && validRisk(Number(d.RCA.risk))) cardioData.RCA = { risk: Number(d.RCA.risk), label: String(d.RCA.label || '') };
+    
+    isPredicted = true;
+    updateHUDTelemetry();
+    updateRiskLegendDisplay();
+    if (currentVisualizationMode === 'risk') {
+      applyCoronaryMode('risk');
+    }
+    if (currentlySelectedMesh) selectMesh(currentlySelectedMesh);
+  } else if (ev.data.type === 'SET_VISUALIZATION_MODE') {
+    if (ev.data.mode) applyCoronaryMode(ev.data.mode);
+  } else if (ev.data.type === 'SET_APPEARANCE_STYLE') {
+    if (ev.data.style) setAppearanceStyle(ev.data.style);
+  } else if (ev.data.type === 'RESET_CARDIO_DATA') {
+    window.CardioVision3D.reset();
+  } else if (ev.data.type === 'TAB_VISIBLE' || ev.data.type === 'FIT_CAMERA' || ev.data.type === 'VIEWER_VISIBLE') {
+    isViewerActive = true;
+    onWindowResize();
+  } else if (ev.data.type === 'VIEWER_HIDDEN') {
+    isViewerActive = false;
+  }
+});
+
+// Event Listeners for UI
+for (const input of document.querySelectorAll('[data-group]')) {
+  input.addEventListener('change', refreshVisibility);
+}
+
+const btnModeAnatomy = document.querySelector('#modeAnatomy');
+if (btnModeAnatomy) {
+  btnModeAnatomy.addEventListener('click', () => applyCoronaryMode('anatomy'));
+}
+const btnModeRisk = document.querySelector('#modeRisk');
+if (btnModeRisk) {
+  btnModeRisk.addEventListener('click', () => applyCoronaryMode('risk'));
+}
+
+const btnStyleClinical = document.querySelector('#styleClinical');
+if (btnStyleClinical) {
+  btnStyleClinical.addEventListener('click', () => setAppearanceStyle('clinical'));
+}
+
+
+
+document.querySelector('#opacity').addEventListener('input', e => setHeartOpacity(Number(e.target.value)));
+document.querySelector('#presetComplete').addEventListener('click', () => applyPreset('complete'));
+document.querySelector('#presetCoronary').addEventListener('click', () => applyPreset('coronary'));
+
+document.querySelector('#btnReset').addEventListener('click', () => setView('reset', true));
+for (const btn of document.querySelectorAll('[data-view]')) {
+  btn.addEventListener('click', () => setView(btn.dataset.view, true));
+}
+
+// Raycasting for interactive selection
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let pointerDownPos = null;
+
+renderer.domElement.addEventListener('pointerdown', e => {
+  pointerDownPos = [e.clientX, e.clientY];
+  cancelCameraAnimation();
+  setActiveViewIndicator(null);
+});
+
+function isMeshEligibleForRaycast(mesh) {
+  if (!mesh || !mesh.isMesh || mesh.name === 'selectionOutline') return false;
+
+  // 1. Hierarchy visibility check (all parent nodes up to scene root must be visible)
+  let curr = mesh;
+  while (curr) {
+    if (curr.visible === false) return false;
+    curr = curr.parent;
+  }
+
+  // 2. Respect all anatomical layer checkbox states (an unchecked layer is completely excluded)
+  const grp = mesh.userData ? mesh.userData.group : null;
+  if (grp) {
+    const input = document.querySelector(`[data-group="${grp}"]`);
+    if (input && !input.checked) return false;
+  }
+
+  // 3. Opacity and ghosted myocardium check
+  // Requirement 7: In Coronary Focus mode (or when myocardium opacity is lowered below 50%),
+  // outer myocardium walls (ventricles, atria, great_vessels) become click-through
+  // so users can directly and easily select visible internal structures and coronary vessels.
+  const isOuterMyocardium = (grp === 'ventricles' || grp === 'atria' || grp === 'great_vessels');
+  const coronaryBtn = document.querySelector('#presetCoronary');
+  const isCoronaryPresetActive = coronaryBtn && coronaryBtn.classList.contains('active');
+  const currentOpacity = (materials[grp] && materials[grp].opacity !== undefined) ? materials[grp].opacity : 1.0;
+
+  if (isOuterMyocardium && (isCoronaryPresetActive || currentOpacity < 0.50)) {
+    return false;
+  }
+
+  // 4. Zero/hidden material opacity
+  if (mesh.material && mesh.material.opacity !== undefined && mesh.material.opacity <= 0.02) {
+    return false;
+  }
+
+  return true;
+}
+
+function getSelectableMeshes() {
+  const selectables = [];
+  root.traverse(child => {
+    if (isMeshEligibleForRaycast(child)) {
+      selectables.push(child);
+    }
+  });
+  return selectables;
+}
+
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!pointerDownPos || Math.hypot(e.clientX - pointerDownPos[0], e.clientY - pointerDownPos[1]) > 5) return;
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = (e.clientX - rect.left) / rect.width * 2 - 1;
+  pointer.y = -(e.clientY - rect.top) / rect.height * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  
+  // Use a filtered list of selectable meshes rather than raycasting against all 106 meshes indiscriminately
+  const selectableMeshes = getSelectableMeshes();
+  const hits = raycaster.intersectObjects(selectableMeshes, false);
+  
+  // Requirement 6: When multiple meshes intersect the cursor ray, select the nearest eligible visible mesh, not the nearest hidden mesh.
+  let targetHit = null;
+  for (const hit of hits) {
+    if (isMeshEligibleForRaycast(hit.object)) {
+      targetHit = hit;
+      break;
+    }
+  }
+
+  if (targetHit) {
+    selectMesh(targetHit.object);
+  } else {
+    selectMesh(null);
+  }
+});
+
+let lastW = window.innerWidth;
+let lastH = window.innerHeight;
+
+function onWindowResize() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  if (w < 100 || h < 100) return;
+  if (w === lastW && h === lastH) return;
+  lastW = w;
+  lastH = h;
+
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  const curAspect = w / h;
+  if (outlineMaterial && outlineMaterial.uniforms && outlineMaterial.uniforms.aspect) {
+    outlineMaterial.uniforms.aspect.value = curAspect;
+  }
+  if (glowOutlineMaterial && glowOutlineMaterial.uniforms && glowOutlineMaterial.uniforms.aspect) {
+    glowOutlineMaterial.uniforms.aspect.value = curAspect;
+  }
+  controls.zoomSpeed = 2.4 * Math.max(1, (window.devicePixelRatio | 0));
+
+  if (loaded.length === entries.length && !initialFitDone) {
+    initialFitDone = true;
+    fitCameraToHeart(true);
+    setView('front', false);
+  }
+}
+
+window.addEventListener('resize', onWindowResize);
+
+let isRenderRequested = false;
+
+function requestRender() {
+  if (!isRenderRequested && isViewerActive) {
+    isRenderRequested = true;
+    requestAnimationFrame(renderLoop);
+  }
+}
+
+function renderLoop() {
+  isRenderRequested = false;
+  if (!isViewerActive) return;
+
+  const isTransitioning = advanceCameraTransition();
+  if (!cameraTransition) {
+    controls.update();
+  }
+  const isPulsing = updateSelectionPulse ? updateSelectionPulse() : false;
+  renderer.render(scene, camera);
+
+  if (isTransitioning || isPulsing) {
+    requestRender();
+  }
+}
+
+controls.addEventListener('change', requestRender);
+
+requestRender();
+loadAllMeshes();
+</script>
+</body>
+</html>
