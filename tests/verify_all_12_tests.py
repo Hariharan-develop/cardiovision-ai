@@ -36,9 +36,9 @@ TEST_OUTPUT_DIR = os.path.join(BASE_DIR, "verification_reports")
 os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
 
 try:
-    from backend.api_server import compute_predictions
-except ImportError:
     from api_server import compute_predictions
+except ImportError:
+    from backend.api_server import compute_predictions
 
 try:
     from backend.pdf_generator import generate_pdf_report

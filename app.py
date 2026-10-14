@@ -688,6 +688,9 @@ for k, v in replacements.items():
     html_page = html_page.replace(f"{{{clean_k}}}", str(v))
     html_page = html_page.replace(f"{{{{{clean_k}}}}}", str(v))
 
+# Route 3D viewer iframe directly to api_server (port 8502) to prevent Streamlit (port 8501) 404s
+html_page = html_page.replace('src="/viewer.html"', 'src="http://127.0.0.1:8502/viewer.html"')
+
 # -----------------------------------------------------------------------------
 # 9. Embed Fullscreen Dashboard in Streamlit
 # -----------------------------------------------------------------------------

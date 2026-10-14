@@ -3368,6 +3368,17 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{display:none!important;width:0!i
       </div>
       <div style="background:#080d1a;border-radius:18px;overflow:hidden;border:1px solid #1a2b4a;height:calc(100vh - 160px);min-height:640px;max-height:840px;position:relative;">
         <iframe id="viewerIframe" src="/viewer.html" style="width:100%;height:100%;border:none;display:block;" title="CardioVision 3D Anatomical Heart Viewer"></iframe>
+        <script>
+          (function() {
+            try {
+              var ifr = document.getElementById('viewerIframe');
+              if (ifr && window.location.port !== '8502' && ifr.src.indexOf(':8502') === -1) {
+                var host = window.location.hostname || '127.0.0.1';
+                ifr.src = (window.location.protocol === 'https:' ? 'https:' : 'http:') + '//' + host + ':8502/viewer.html';
+              }
+            } catch(e) {}
+          })();
+        </script>
       </div>
     </div>
   </div>
@@ -3609,9 +3620,11 @@ function switchNav(viewId){
     try {
       const viewer = document.getElementById('viewerIframe') || document.getElementById('heartViewerFrame');
       if (viewer && viewer.contentWindow) {
-        if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.onTabVisible) {
-          viewer.contentWindow.CardioVision3D.onTabVisible();
-        }
+        try {
+          if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.onTabVisible) {
+            viewer.contentWindow.CardioVision3D.onTabVisible();
+          }
+        } catch(err) {}
         viewer.contentWindow.postMessage({ type: 'TAB_VISIBLE' }, '*');
         viewer.contentWindow.postMessage({ type: 'VIEWER_VISIBLE' }, '*');
       }
@@ -3656,9 +3669,11 @@ function sync3DViewerState() {
           LCX: { risk: Number(d.lcx_risk || 0), label: String(d.lcx_label || 'Stenotic') },
           RCA: { risk: Number(d.rca_risk || 0), label: String(d.rca_label || 'Stenotic') }
         };
-        if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.updateProbabilities) {
-          viewer.contentWindow.CardioVision3D.updateProbabilities(updatePayload);
-        }
+        try {
+          if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.updateProbabilities) {
+            viewer.contentWindow.CardioVision3D.updateProbabilities(updatePayload);
+          }
+        } catch(err) {}
         viewer.contentWindow.postMessage({ type: 'UPDATE_CARDIO_DATA', data: updatePayload }, '*');
       }
     }
@@ -4758,14 +4773,16 @@ function applyPredictions(data, payload){
   try {
     const viewer = document.getElementById('viewerIframe') || document.getElementById('heartViewerFrame');
     if (viewer && viewer.contentWindow) {
-      if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.updateProbabilities) {
-        viewer.contentWindow.CardioVision3D.updateProbabilities({
-          CAD: { risk: data.cad_risk, label: data.cad_label },
-          LAD: { risk: data.lad_risk, label: data.lad_label },
-          LCX: { risk: data.lcx_risk, label: data.lcx_label },
-          RCA: { risk: data.rca_risk, label: data.rca_label }
-        });
-      }
+      try {
+        if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.updateProbabilities) {
+          viewer.contentWindow.CardioVision3D.updateProbabilities({
+            CAD: { risk: data.cad_risk, label: data.cad_label },
+            LAD: { risk: data.lad_risk, label: data.lad_label },
+            LCX: { risk: data.lcx_risk, label: data.lcx_label },
+            RCA: { risk: data.rca_risk, label: data.rca_label }
+          });
+        }
+      } catch(err) {}
       viewer.contentWindow.postMessage({
         type: 'UPDATE_CARDIO_DATA',
         data: {
@@ -6297,16 +6314,18 @@ function clearPredictionResults(){
   try {
     const viewer = document.getElementById('viewerIframe') || document.getElementById('heartViewerFrame');
     if (viewer && viewer.contentWindow) {
-      if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.reset) {
-        viewer.contentWindow.CardioVision3D.reset();
-      } else if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.updateProbabilities) {
-        viewer.contentWindow.CardioVision3D.updateProbabilities({
-          CAD: { risk: 0, label: 'Awaiting' },
-          LAD: { risk: 0, label: 'Awaiting' },
-          LCX: { risk: 0, label: 'Awaiting' },
-          RCA: { risk: 0, label: 'Awaiting' }
-        });
-      }
+      try {
+        if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.reset) {
+          viewer.contentWindow.CardioVision3D.reset();
+        } else if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.updateProbabilities) {
+          viewer.contentWindow.CardioVision3D.updateProbabilities({
+            CAD: { risk: 0, label: 'Awaiting' },
+            LAD: { risk: 0, label: 'Awaiting' },
+            LCX: { risk: 0, label: 'Awaiting' },
+            RCA: { risk: 0, label: 'Awaiting' }
+          });
+        }
+      } catch(err) {}
       viewer.contentWindow.postMessage({
         type: 'RESET_CARDIO_DATA'
       }, '*');
