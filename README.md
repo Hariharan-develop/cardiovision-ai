@@ -1,141 +1,281 @@
-# CardioVision AI — Multi-Vessel Cardiovascular Risk Intelligence Platform
+# CardioVision AI — Explainable Cardiovascular Risk Intelligence Platform
+
+> **IIT Mandi Multimodal AI Hackathon 2026 — Track A: Cardiovascular Risk Visualization & Prediction**  
+> *Explainable Multimodal AI Research Prototype for Non-Invasive Coronary Artery Disease Risk Assessment & Anatomical 3D Spatial Telemetry*
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Machine Learning](https://img.shields.io/badge/ML-Scikit--Learn%20%7C%20SHAP-orange.svg)](https://scikit-learn.org/)
 [![Visualization](https://img.shields.io/badge/3D-Three.js%20106--Mesh-emerald.svg)](https://threejs.org/)
-[![Reporting](https://img.shields.io/badge/PDF-ReportLab%20A4%20Dynamic-purple.svg)](https://www.reportlab.com/)
-[![Tests](https://img.shields.io/badge/Verification-100%25%20PASS-brightgreen.svg)]()
-
-> **CardioVision AI** is an explainable clinical decision-support research platform for non-invasive multi-vessel coronary artery disease (CAD) risk assessment. It synthesizes a standardized 57-dimensional clinical feature vector, evaluates independent vessel-specific predictive models, delivers mathematically grounded SHAP explanations, projects spatial risk onto an interactive 106-mesh 3D heart model, and exports publication-grade medical research PDF reports.
-
----
-
-## Visual Tour
-
-| Interactive Clinical Dashboard | Three.js 106-Mesh Cardiac Spatial Overlay |
-|:---:|:---:|
-| ![Clinical Dashboard](docs/screenshots/dashboard_banner.png) | ![3D Heart Visualization](docs/screenshots/threejs_3d_heart.png) |
-
-| Multi-Vessel Predictive Risk Cards | Publication-Grade 3-Page Research Report |
-|:---:|:---:|
-| ![Prediction Cards](docs/screenshots/dashboard_prediction_cards.png) | ![PDF Report Page 1](docs/screenshots/standard_page_1.png) |
+[![Reporting](https://img.shields.io/badge/PDF-ReportLab%20A4%20Multi--Page-purple.svg)](https://www.reportlab.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Verification Tests](https://img.shields.io/badge/Regression%20Tests-100%25%20PASS-brightgreen.svg)]()
 
 ---
 
-## Key Platform Features
+## 1. Project Inspiration & Problem Statement
 
-1. **Synchronized 57-Dimensional Feature Vector**:
-   - Traces 34 continuous physiological biomarkers (BP, resting pulse, EF-TTE, FBS, lipid profiles, renal panels, electrolytes, hematology) and 23 binary clinical indicators across every tier of the application.
-   - Enforces an immutable `PatientFeatureSnapshot` with SHA-256 fingerprinting to eliminate data divergence between the UI, API, model vector, SHAP explanations, and exported PDF.
+Coronary Artery Disease (CAD) remains the leading cause of mortality worldwide. Conventional clinical risk assessment tools (such as Framingham Risk Score or ASCVD Pooled Cohort Equations) estimate generic 10-year systemic cardiovascular event risk without identifying **vessel-specific stenosis** in the epicardial coronary tree (Left Anterior Descending, Left Circumflex, and Right Coronary Artery). Furthermore, clinical workflows are burdened by unstructured medical reports (laboratory printouts, electronic health record PDFs, scanned referral notes) that require laborious manual data transcription.
 
-2. **Multi-Vessel Predictive Classification**:
-   - **CAD**: Global coronary artery disease probability via regularized linear classifier.
-   - **LAD**: Left Anterior Descending artery stenosis probability via gradient-boosted decision trees.
-   - **LCX**: Left Circumflex artery stenosis probability via tree-based classification.
-   - **RCA**: Right Coronary Artery stenosis probability via linear margin classification.
-
-3. **Dual Operational Modes**:
-   - **Standard Production Mode**: Retrospective baseline models (`cad_model.pkl`, `lad_model.pkl`, `lcx_model.pkl`, `rca_model.pkl`) using a standard 50.0% decision threshold.
-   - **Experimental Candidate Mode**: Candidate models (`lcx_model_candidate.pkl`, `rca_model_candidate.pkl`) utilizing exploratory nested cross-validation decision thresholds: **LCX 0.45 (45.0%)** and **RCA 0.40 (40.0%)**.
-
-4. **Game-Theoretic SHAP Explainability**:
-   - Strictly separates additive probability scale ($\Delta\text{ probability}$) from log-odds scale ($\Delta\text{ log-odds}$) with verified additivity:
-     $$E[f(x)] + \sum_{i=1}^M \phi_i = f(x)$$
-   - Embeds vector-rendered horizontal feature ranking charts and step-by-step waterfall decomposition graphs.
-
-5. **Interactive Three.js 106-Mesh 3D Cardiac Viewer**:
-   - Anatomical BodyParts3D cardiac mesh assembly with dynamic vascular telemetry and real-time risk-colored arterial highlighting (LAD `#2a86ef`, LCX `#0fb77d`, RCA `#ff9900`, LM Stem `#e6d6c2`, Myocardium `#c94a53`).
-
-6. **Publication-Grade Medical PDF Reporting**:
-   - Multi-page dynamic A4 portrait report with running headers, footers (`Page X of Y`), validated physiological stature/BMI assessments, complete laboratory summaries, enlarged 3D heart snapshot, and model reliability benchmarks.
-   - Strict payload verification: Mismatched predictions or stale explanations are rejected with `InconsistentPayloadError` (HTTP 400 Bad Request) rather than silently auto-substituted.
+**CardioVision AI** addresses these challenges by uniting:
+1. Automated clinical document parsing with human-in-the-loop review.
+2. An immutable canonical 57-feature vector preventing data drift.
+3. Multi-vessel risk prediction across the major coronary arteries (CAD, LAD, LCX, RCA).
+4. Mathematically consistent patient-specific SHAP explanations.
+5. Interactive Three.js 106-mesh anatomical 3D heart visualization with vessel-specific telemetry overlays.
+6. SQLite session history and publication-grade multi-page research PDF reports.
 
 ---
 
-## System Architecture
+## 2. Solution Overview & Key Workflows
 
-```mermaid
-flowchart TD
-    subgraph UI ["User Interface Layer"]
-        A[Clinical Form / Active Dashboard] --> B[Three.js 106-Mesh 3D Heart Viewer]
-    end
-
-    subgraph API ["REST API Layer (Port 8502)"]
-        C[POST /api/predict]
-        D[POST /api/generate-pdf]
-        E[GET /api/health]
-    end
-
-    subgraph Core ["Data Integrity Core"]
-        F[create_patient_feature_snapshot]
-        G[Immutable PatientFeatureSnapshot<br/>• Raw Patient Data<br/>• 1x57 DataFrame X<br/>• SHA-256 Hash]
-        H[verify_snapshot_consistency]
-    end
-
-    subgraph ML ["Machine Learning & Explainability Engine"]
-        I[Standard Baseline Models<br/>CAD, LAD, LCX, RCA]
-        J[Experimental Candidate Models<br/>LCX Thresh: 0.45 | RCA Thresh: 0.40]
-        K[SHAP Service<br/>TreeExplainer & LinearExplainer]
-    end
-
-    subgraph Output ["Clinical Reporting Layer"]
-        L[NumberedCanvas Multi-Page Engine]
-        M[A4 3-Page Publication PDF Report]
-    end
-
-    A -->|Serialized JSON| C
-    A -->|Snapshot Data URL| D
-    C --> F
-    D --> F
-    F --> G
-    G --> I
-    G --> J
-    I --> K
-    J --> K
-    G --> H
-    K --> H
-    H -->|Validated Payload| L
-    H -.->|Inconsistent Payload| N[InconsistentPayloadError / HTTP 400]
-    L --> M
+```
+┌─────────────────────────────────┐      ┌─────────────────────────────────┐      ┌─────────────────────────────────┐
+│     Multimodal Data Ingestion   │      │   Validated Clinical Snapshot   │      │    Explainability & Output      │
+│ • Digital & Scanned Reports     │ ───► │ • Canonical 57-feature matrix   │ ───► │ • Multi-vessel risk (CAD, LAD,  │
+│ • Laboratory result tables      │      │ • Deterministic SHA-256 hash    │      │   LCX, RCA)                     │
+│ • Analyte unit conversions      │      │ • Zero silent clipping or drift │      │ • Mathematical SHAP waterfalled │
+│ • Human-in-the-loop review table│      │ • Dual Standard/Candidate modes │      │ • 106-mesh 3D anatomical viewer │
+│                                 │      │                                 │      │ • Multi-page research PDF export│
+└─────────────────────────────────┘      └─────────────────────────────────┘      └─────────────────────────────────┘
 ```
 
 ---
 
-## Model Performance & Reliability
+## 3. Working Dashboard & Visual Showcase
 
-### Standard Production Mode
-Evaluated on retrospective held-out test cohort data:
+| Interactive Clinical Dashboard | Three.js 106-Mesh Anatomical Heart Overlay |
+|:---:|:---:|
+| ![Clinical Dashboard](docs/screenshots/target_form.png) | ![3D Heart Visualization](docs/screenshots/target_results.png) |
 
-| Target Vascular Outcome | Model File | Accuracy | F1 Score | ROC-AUC | Decision Threshold |
-|---|---|:---:|:---:|:---:|:---:|
-| **Overall CAD** | `cad_model.pkl` | **85.2%** | 89.7% | **0.917** | 50.0% |
-| **LAD Stenosis** | `lad_model.pkl` | **65.6%** | 67.7% | **0.756** | 50.0% |
-| **LCX Stenosis** | `lcx_model.pkl` | **57.4%** | 53.6% | 0.584 | 50.0% |
-| **RCA Stenosis** | `rca_model.pkl` | **60.7%** | 50.0% | 0.652 | 50.0% |
-
-> **Reliability Notice**: Standard LCX and RCA baseline models exhibit limited discriminatory power in development cohort testing (ROC-AUC 0.584 and 0.652). Probabilities must be interpreted with extreme caution and never guide clinical interventions independently.
-
-### Experimental Candidate Mode
-Evaluated via exploratory nested threshold cross-validation:
-
-| Target Vascular Outcome | Candidate Model File | Macro F1 | Stenotic Recall | Precision | Balanced Accuracy | Tuned Decision Threshold |
-|---|---|:---:|:---:|:---:|:---:|:---:|
-| **LCX Candidate** | `lcx_model_candidate.pkl` | **0.689** | **0.597** | **0.634** | **0.687** | **45.0% (0.45)** |
-| **RCA Candidate** | `rca_model_candidate.pkl` | **0.651** | **0.632** | **0.545** | **0.657** | **40.0% (0.40)** |
-
-> **Candidate Cross-Validation Notice**: LCX and RCA candidate models report exploratory nested threshold cross-validation metrics. Accuracy and ROC-AUC were not evaluated for candidate models. These exploratory research metrics must not be confused with or reported as Standard mode metrics.
->
-> **Methodology Verification & Saved Results**: All candidate nested-CV metrics are backed by the reproducible evaluation code in [`evaluate_nested_cv.py`](evaluate_nested_cv.py) (5-fold outer Stratified CV × 3-fold inner threshold calibration on the 57 clinical features) and saved in [`nested_cv_results.json`](nested_cv_results.json). Execute `python evaluate_nested_cv.py` to re-run the verification pipeline and inspect per-fold metrics.
+| Multi-Vessel Prediction Cards | Publication-Grade Multi-Page PDF Dossier |
+|:---:|:---:|
+| ![Prediction Cards](docs/screenshots/target_sidebar.png) | ![PDF Report Page](docs/screenshots/target_header_crop.png) |
 
 ---
 
-## Installation & Setup
+## 4. Unstructured Medical Report Extraction Pipeline
+
+CardioVision AI incorporates a robust document ingestion engine (`backend/clinical_extractor.py`) designed for clinical documents:
+
+- **Format Support**: Parses digital text-based PDFs (PyMuPDF), multi-page laboratory dossiers, and Microsoft Word reports (`.docx`).
+- **Scanned Document Handling**: Detects raster image pages with an automated fallback to Tesseract OCR (`pytesseract`), issuing a descriptive notice if OCR is unavailable.
+- **Reference Range Exclusion**: Disregards parenthetical reference intervals (e.g., `(Ref: 70-99 mg/dL)`) and test codes before extracting measured values, preventing false-positive biomarker assignment.
+- **Analyte-Specific Unit Conversions**:
+  - Height: ft/in, in, m $\rightarrow$ cm
+  - Weight: lbs $\rightarrow$ kg
+  - Glucose: mmol/L $\rightarrow$ mg/dL ($\times 18.0182$)
+  - Creatinine: $\mu\text{mol/L} \rightarrow \text{mg/dL}$ ($\div 88.4$)
+  - Total Cholesterol / LDL / HDL: mmol/L $\rightarrow$ mg/dL ($\times 38.67$)
+  - Triglycerides: mmol/L $\rightarrow$ mg/dL ($\times 88.57$)
+  - WBC: $10^3/\mu\text{L}, \text{K}/\mu\text{L} \rightarrow /\mu\text{L}$ ($\times 1000$)
+- **Human-Reviewed Review Table**: Extracted fields are displayed in an interactive table categorizing confidence into `Extracted`, `Calculated`, `Needs Review`, and `Not Found`. Clinical staff can inspect source page citations and raw snippets before applying values.
+- **Stale State Invalidation**: Applying extracted values immediately invalidates prior predictions, charts, SHAP explanations, and 3D overlays, resetting the application state to "Awaiting Prediction".
+
+---
+
+## 5. Four-Model Cardiovascular Prediction Architecture
+
+The platform evaluates four independent, trained scikit-learn models targeting the primary coronary vasculature:
+
+1. **CAD Model** (`models/cad_model.pkl`): Evaluates overall coronary artery disease risk ($\ge 50\%$ stenosis in $\ge 1$ major epicardial coronary artery).
+2. **LAD Model** (`models/lad_model.pkl`): Evaluates stenosis in the Left Anterior Descending artery (the anterior wall and septum supplier).
+3. **LCX Model** (`models/lcx_model.pkl` / `models/lcx_model_candidate.pkl`): Evaluates stenosis in the Left Circumflex artery (the lateral and posterior myocardial supplier).
+4. **RCA Model** (`models/rca_model.pkl` / `models/rca_model_candidate.pkl`): Evaluates stenosis in the Right Coronary Artery (the inferior wall and right ventricular supplier).
+
+---
+
+## 6. Canonical 57-Feature Vector
+
+To prevent data drift and silent mutation, all components interact through an immutable canonical 57-dimensional vector (`feature_columns.pkl`):
+
+| Category | Count | Features Included |
+|---|:---:|---|
+| **Demographics** | 4 | Age, Stature (Length), Body Weight, Sex (One-hot encoded) |
+| **Medical History** | 8 | Diabetes Mellitus (DM), Hypertension (HTN), Current Smoker, Ex-Smoker, Family History (FH), Obesity, Chronic Renal Failure (CRF), Cerebrovascular Accident (CVA) |
+| **Symptom Presentation** | 6 | Typical Chest Pain, Dyspnea, Atypical Chest Pain, Nonanginal Pain, Low-Threshold Angina, Poor R-Wave Progression |
+| **Vital Signs & Echo** | 4 | Systolic Blood Pressure (BP), Pulse Rate (PR), Left Ventricular Ejection Fraction (EF-TTE), Regional Wall Motion Abnormality (Region RWMA) |
+| **Laboratory Biomarkers** | 14 | Fasting Blood Sugar (FBS), Serum Creatinine (CR), Triglycerides (TG), LDL Cholesterol, HDL Cholesterol, BUN, ESR, Hemoglobin (HB), Potassium (K), Sodium (Na), WBC, Lymphocyte %, Neutrophil %, Platelets (PLT) |
+| **ECG Findings** | 5 | Pathologic Q-Wave, ST Elevation, ST Depression, T-Wave Inversion, Left Ventricular Hypertrophy (LVH) |
+| **Cardiac Telemetry & Exam** | 16 | Bundle Branch Blocks (BBB Normal / RBBB), Valvular Heart Disease (VHD Normal / Mild / Severe), Functional Class, Peripheral Pulse, Heart Murmurs, Lung Rales, Edema, Chronic Heart Failure (CHF), Dyslipidemia (DLP) |
+
+---
+
+## 7. Patient-Specific SHAP Explanations
+
+CardioVision AI provides mathematically rigorous feature attributions via SHAP (SHapley Additive exPlanations):
+
+- **Linear Models (CAD & RCA)**: Explanations operate on the **log-odds margin scale** ($f(x) \in \mathbb{R}$) using `shap.LinearExplainer`. The output probability strictly satisfies:
+  $$P(\text{Risk}) = \sigma(f(x)) = \frac{1}{1 + e^{-f(x)}}$$
+- **Tree Ensembles (LAD & LCX)**: Explanations operate directly on the **probability scale** ($f(x) \in [0, 1]$) using `shap.TreeExplainer`.
+- **Exact Additivity**: Every explanation satisfies the efficiency property:
+  $$\mathbb{E}[f(x)] + \sum_{i=1}^{M} \phi_i = f(x)$$
+- **Waterfall Decomposition**: Visualizes top positive risk drivers (red) and protective factors (blue) alongside a mathematically verified `Remaining Features` balance term.
+
+---
+
+## 8. Interactive Three.js 106-Mesh Anatomical Visualization
+
+The 3D cardiac viewer (`frontend/components/heart_viewer.html`) renders an anatomically curated 106-mesh heart model based on the BodyParts3D ontology:
+
+- **Anatomical Context**: Visualizes ventricles, atria, great vessels, and epicardial coronary arteries without claiming patient-specific geometry.
+- **Live Vessel Telemetry**: Synchronized risk colors highlight coronary branches based on prediction output:
+  - **LAD**: Left anterior descending branch
+  - **LCX**: Left circumflex branch
+  - **RCA**: Right coronary artery branch
+  - **LM Stem**: Left main coronary stem
+- **Demand-Driven Rendering**: Utilizes `requestRender()` to cap resource utilization, pauses rendering during tab switching (`VIEWER_HIDDEN`), and caps device pixel ratio at 1.5.
+- **Direct Route Serving**: Served on `/viewer.html` on the same origin (`http://127.0.0.1:8502`), eliminating brittle `srcdoc` injections, deprecated iframe permissions, and sandbox security warnings.
+
+---
+
+## 9. Prediction History & Multi-Page Research PDF Export
+
+- **Local Session History**: Stores evaluations with their 57-feature snapshot, probability predictions, and SHAP explanations in an audit-ready SQLite database (`data/prediction_history.db`).
+- **Search & Filter**: Allows instant filtering by patient name, record ID, or model mode.
+- **Dynamic Multi-Page PDF Export**: Generates publication-ready research reports including:
+  - Document header with patient demographics and physical assessment.
+  - Complete 54-field clinical measurement table.
+  - Multi-vessel risk summary with classification thresholds.
+  - Four patient-specific SHAP waterfall charts.
+  - Embedded high-resolution 3D anatomical heart capture with coronary telemetry.
+  - Dynamic pagination with running headers, footers (`Page X of Y`), and comprehensive disclaimers.
+
+---
+
+## 10. Standard Mode vs. Experimental Candidate Mode
+
+Users can toggle between two operational configurations:
+
+### Standard Mode
+- **Models**: Baseline production models (`cad_model.pkl`, `lad_model.pkl`, `lcx_model.pkl`, `rca_model.pkl`).
+- **Thresholds**: Canonical $0.50$ (50.0%) decision thresholds across all four vessels.
+
+### Experimental Candidate Mode
+- **Models**: Evaluates candidate models (`lcx_model_candidate.pkl`, `rca_model_candidate.pkl`) alongside baseline CAD and LAD models.
+- **Thresholds**:
+  - CAD: $0.50$ (50.0%)
+  - LAD: $0.50$ (50.0%)
+  - **LCX Candidate**: $0.45$ (45.0%)
+  - **RCA Candidate**: $0.40$ (40.0%)
+
+> [!IMPORTANT]
+> **Threshold Adjustment vs. Probability Calibration**:
+> Adjusting decision thresholds (e.g., to $0.45$ or $0.40$) alters classification sensitivity and specificity for research exploration. Lowering thresholds does **not** calibrate predicted probabilities.
+
+---
+
+## 11. Model Evaluation Results
+
+Retrospective baseline evaluation on the Z-Alizadeh Sani development cohort:
+
+| Target Model | Primary Target Endpoint | Algorithm | Baseline ROC-AUC | Decision Threshold |
+|---|---|---|:---:|:---:|
+| **CAD Model** | Global Coronary Artery Disease | Logistic Regression | **0.917** | 0.50 |
+| **LAD Model** | Left Anterior Descending Stenosis | Random Forest | **0.756** | 0.50 |
+| **LCX Model** | Left Circumflex Stenosis | Random Forest | **0.584** | 0.50 |
+| **RCA Model** | Right Coronary Artery Stenosis | Logistic Regression | **0.652** | 0.50 |
+
+### Research Observations on Baseline Performance
+- The CAD model demonstrates excellent overall discrimination ($\text{ROC-AUC} = 0.917$).
+- The LAD model achieves moderate discrimination ($\text{ROC-AUC} = 0.756$).
+- **Limited Discrimination Notice**: Baseline LCX ($\text{ROC-AUC} = 0.584$) and RCA ($\text{ROC-AUC} = 0.652$) models exhibit limited discriminatory performance on this cohort. Lateral and inferior vessel involvement often produce non-specific non-invasive findings. In adherence to scientific transparency, these limitations are explicitly documented rather than artificially inflated.
+
+---
+
+## 12. Technology Stack
+
+- **Backend**: Python 3.10+, Standard Library `http.server`, SQLite3.
+- **Machine Learning & Explainability**: `scikit-learn` (1.3 - 1.6), `shap` (0.45 - 0.49), `pandas`, `numpy`, `joblib`.
+- **Multimodal Extraction**: `pymupdf` (PyMuPDF 1.24+), `python-docx`, `beautifulsoup4`, `pytesseract` (Tesseract OCR).
+- **PDF Generation**: `reportlab` (4.0+), `matplotlib` (3.7+), `Pillow`.
+- **Frontend & 3D Visualization**: HTML5, Vanilla JavaScript, CSS3, `Three.js` (WebGL 3D engine, OrbitControls, OBJLoader).
+
+---
+
+## 13. Project Directory Structure
+
+```text
+CardioVision-AI/
+│
+├── README.md                           # Master project documentation
+├── requirements.txt                    # Pinned, compatible dependencies
+├── .gitignore                          # Clean security and cache exclusions
+├── .env.example                        # Environment configuration template
+├── LICENSE                             # MIT license and third-party notices
+│
+├── app.py                              # Optional Streamlit application entry point
+├── api_server.py                       # High-performance REST API & static server (Port 8502)
+│
+├── frontend/                           # Client interface assets
+│   ├── cardiovision_exact_dashboard.html # Interactive single-page clinical dashboard
+│   ├── assets/                         # Dashboard headers, badges, and background graphics
+│   └── components/
+│       └── heart_viewer.html           # Dedicated Three.js 106-mesh 3D anatomical viewer
+│
+├── backend/                            # Core engineering services
+│   ├── __init__.py
+│   ├── clinical_extractor.py          # Multimodal medical report extraction engine
+│   ├── patient_feature_snapshot.py     # Canonical 57-feature snapshot & state validation
+│   ├── shap_service.py                 # Tree and Linear SHAP explainability service
+│   ├── pdf_generator.py                # Multi-page ReportLab research PDF generator
+│   └── history_service.py              # SQLite session history service
+│
+├── models/                             # Serialized trained machine learning models
+│   ├── cad_model.pkl                   # CAD predictive model
+│   ├── lad_model.pkl                   # LAD predictive model
+│   ├── lcx_model.pkl                   # Standard LCX predictive model
+│   ├── rca_model.pkl                   # Standard RCA predictive model
+│   ├── lcx_model_candidate.pkl         # Experimental LCX candidate model
+│   ├── rca_model_candidate.pkl         # Experimental RCA candidate model
+│   ├── feature_columns.pkl             # Canonical 57-feature ordering vector
+│   ├── numeric_defaults.pkl            # Median reference fallback values
+│   └── candidate_thresholds.json       # Candidate threshold definitions
+│
+├── assets/
+│   └── heart_3d/                       # 106 anatomical OBJ meshes (BodyParts3D)
+│
+├── data/
+│   ├── README.md                       # Dataset documentation and attribution
+│   └── z_alizadeh_sani_dataset.xlsx    # Benchmark dataset reference copy
+│
+├── tests/                              # Comprehensive automated test suites
+│   ├── verify_prediction_state_sync.py # Invalidation & state synchronization test
+│   ├── verify_57_features_sync.py      # Full 57-feature end-to-end sync test
+│   ├── verify_medical_report_extraction_10_tests.py # 10-scenario clinical extraction test
+│   ├── verify_synthetic_patient_test.py# Synthetic patient extraction & inference test
+│   ├── verify_all_12_tests.py          # 12-scenario full regression suite
+│   ├── verify_all_22_scenarios.py      # 22-scenario comprehensive end-to-end suite
+│   ├── verify_all_synchronization_scenarios.py # Asynchronous state synchronization test
+│   ├── verify_prediction_shap_synchronization.py # SHAP additivity & API rejection test
+│   └── fixtures/                       # Synthetic, fictional patient PDF test documents
+│
+├── evaluation/                         # Model evaluation scripts
+│   ├── evaluate_nested_cv.py          # Nested cross-validation verification script
+│   └── nested_cv_results.json          # Empirical evaluation results
+│
+├── docs/                               # Architecture and submission documentation
+│   ├── ARCHITECTURE.md                 # Detailed architectural blueprint
+│   ├── MODEL_EVALUATION.md             # Model metrics, discrimination, and limitations
+│   ├── DEMO_VIDEO_SCRIPT.md            # Video walkthrough script
+│   ├── HACKATHON_SUBMISSION_CHECKLIST.md # Submission checklist
+│   └── screenshots/                    # Dashboard and evaluation screenshots
+│
+└── scripts/                            # Reproducible startup scripts
+    ├── run_app.bat                     # Windows startup script
+    └── run_app.sh                      # Linux / macOS startup script
+```
+
+---
+
+## 14. Installation & Quickstart
 
 ### Prerequisites
 - Python 3.10, 3.11, or 3.12
-- Modern web browser with WebGL hardware acceleration enabled
+- Modern web browser (Chrome, Edge, Firefox, Safari) with WebGL enabled
+- *(Optional)* Tesseract OCR for scanned raster PDF extraction
 
-### 1. Clone Repository & Create Environment
+### 1. Clone & Set Up Virtual Environment
+
 ```bash
 git clone https://github.com/cardiovision/cardiovision-ai.git
 cd cardiovision-ai
@@ -144,99 +284,116 @@ cd cardiovision-ai
 python -m venv venv
 
 # Activate virtual environment
-# Windows:
+# On Windows:
 venv\Scripts\activate
-# Linux/macOS:
+# On Linux / macOS:
 source venv/bin/activate
 
-# Install all dependencies
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Start the Backend API Server
+### 2. Launch the Application
+
+#### Option A: Using Startup Scripts
+- **Windows**:
+  ```cmd
+  scripts\run_app.bat
+  ```
+- **Linux / macOS**:
+  ```bash
+  chmod +x scripts/run_app.sh
+  ./scripts/run_app.sh
+  ```
+
+#### Option B: Direct Python Execution
 ```bash
 python api_server.py
 ```
-*The server initializes on `http://127.0.0.1:8502` and pre-loads all 6 machine learning models and SHAP explainers.*
 
-### 3. Launch the Dashboard
-You can access the CardioVision AI interface in two ways:
-- **Interactive Streamlit Web App**:
-  ```bash
-  streamlit run app.py
-  ```
-- **Direct Standalone Dashboard**:
-  Open `cardiovision_exact_dashboard.html` directly in any modern browser.
-
----
-
-## Automated Verification & Test Evidence
-
-CardioVision AI includes comprehensive test suites enforcing mathematical additivity, model separation, and zero silent data mutation:
-
-### 1. Full 57-Feature Clinical Synchronization Suite
-Traces all 57 features across Dashboard, Serialized API, Model Vector $X$, SHAP Explanations, and PDF Demographics:
-```bash
-python verify_57_features_sync.py
-```
-**Outcome: 100% PASS (57/57 features synchronized across all 5 tiers)**
-
-### 2. Comprehensive 12/12 End-to-End Regression Suite
-Verifies standard/experimental PDF generation, normal/implausible BMI math, Tree/Linear SHAP scales, 3D WebGL captures, and state isolation:
-```bash
-python verify_all_12_tests.py
-```
-**Outcome: 12/12 TESTS PASSED**
-
-### 3. API & Rejection Verification Suite
-Verifies that mismatched predictions or stale cached explanations strictly raise `InconsistentPayloadError` and return `HTTP 400 Bad Request`:
-```bash
-python verify_prediction_shap_synchronization.py
-```
-**Outcome: 5/5 TESTS PASSED**
-
----
-
-## Repository Structure
-
+Open your browser and navigate to:
 ```text
-CardioVision-AI/
-├── api_server.py                   # High-performance REST API backend (Port 8502)
-├── app.py                          # Streamlit clinical dashboard application
-├── candidate_thresholds.json       # Experimental decision thresholds (LCX: 0.45, RCA: 0.40)
-├── cardiovision_exact_dashboard.html # Standalone Three.js 106-mesh dashboard
-├── patient_feature_snapshot.py     # Immutable 57-feature snapshot & consistency validator
-├── pdf_generator.py                # 3-page dynamic medical research PDF generator
-├── shap_service.py                 # Tree & Linear SHAP explainability calculations
-├── requirements.txt                # Complete production dependencies
-├── cad_model.pkl                   # CAD predictive model (Linear/Logistic)
-├── lad_model.pkl                   # LAD predictive model (Gradient Boosting)
-├── lcx_model.pkl                   # Standard LCX predictive model (Random Forest)
-├── lcx_model_candidate.pkl         # Experimental LCX candidate model
-├── rca_model.pkl                   # Standard RCA predictive model (Ridge/Linear)
-├── rca_model_candidate.pkl         # Experimental RCA candidate model
-├── feature_columns.pkl             # Canonical 57-column feature order
-├── numeric_defaults.pkl            # Population median fallback reference vector
-├── docs/
-│   └── screenshots/                # System screenshots and rendered PDF pages
-├── test_output/                    # Generated test PDFs and verification artifacts
-├── verify_57_features_sync.py      # 57-feature clinical synchronization test suite
-├── verify_all_12_tests.py          # 12-test end-to-end regression test suite
-└── verify_prediction_shap_synchronization.py # API & SHAP synchronization test suite
+http://127.0.0.1:8502/dashboard
 ```
 
 ---
 
-## Research Limitations & Regulatory Disclaimer
+## 15. REST API Documentation
 
-> ### RESEARCH PROTOTYPE — NOT A CERTIFIED MEDICAL DEVICE
-> **CardioVision AI is strictly a scientific research prototype and educational demonstration.**
-> - It is **NOT** approved, cleared, or certified by any regulatory agency (such as the US FDA, European CE Mark, or Japanese PMDA) for clinical diagnosis, prognosis, or medical decision-making.
-> - Machine learning risk estimates represent statistical pattern matching against retrospective datasets and cannot substitute for coronary computed tomography angiography (CCTA), invasive coronary angiography (ICA), fractional flow reserve (FFR), or formal clinical examination by a board-certified cardiologist.
-> - Never claim prospective clinical validation.
+CardioVision AI provides a clean RESTful interface:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/predict` | Computes 4-vessel predictions and SHAP explanations from patient features. |
+| `POST` | `/api/upload-report` | Extracts clinical biomarkers from an uploaded PDF, DOCX, or image. |
+| `POST` | `/api/generate-pdf` | Generates a 3-page research PDF dossier from a validated patient snapshot. |
+| `GET` | `/api/history` | Retrieves recent evaluations with summary metrics (`?search=...&mode=...`). |
+| `GET` | `/api/history/{id}` | Fetches detailed snapshot record for a specific evaluation ID. |
+| `GET` | `/api/history/{id}/export-pdf` | Generates an authentic PDF report for a historical evaluation snapshot. |
+| `DELETE`| `/api/history/{id}` | Removes an evaluation record from the database. |
+| `GET` | `/viewer.html` | Serves the standalone Three.js 106-mesh anatomical 3D heart viewer. |
+| `GET` | `/models/{filename}` | Serves 3D OBJ meshes for client-side WebGL rendering. |
 
 ---
 
-## License
+## 16. Running Automated Verification Tests
 
-This project is licensed under the Apache 2.0 License.
+The platform includes exhaustive regression test suites:
+
+```bash
+# 1. Full 57-Feature Clinical Synchronization Suite (57/57 Features PASS)
+python tests/verify_57_features_sync.py
+
+# 2. 10-Scenario Clinical Document Extraction Suite (10/10 Tests PASS)
+python tests/verify_medical_report_extraction_10_tests.py
+
+# 3. 12-Scenario Full Regression Suite (12/12 Tests PASS)
+python tests/verify_all_12_tests.py
+
+# 4. 22-Scenario Comprehensive End-to-End Suite (22/22 Tests PASS)
+python tests/verify_all_22_scenarios.py
+
+# 5. Prediction State & Invalidation Sync Suite (8/8 Tests PASS)
+python tests/verify_prediction_state_sync.py
+
+# 6. Synthetic Patient Extraction & Inference Suite (6/6 Tests PASS)
+python tests/verify_synthetic_patient_test.py
+```
+
+---
+
+## 17. Datasets & Third-Party Asset Attributions
+
+1. **Z-Alizadeh Sani Cardiovascular Dataset**:
+   - Citation: Alizadehsani et al. (2013), *Scientific Reports*. Available at the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/412/z+alizadeh+sani).
+   - License: Creative Commons Attribution 4.0 International (CC BY 4.0).
+2. **BodyParts3D Anatomical Heart Meshes**:
+   - Origin: Database Center for Life Science (DBCLS), Research Organization of Information and Systems (ROIS), Japan.
+   - License: Creative Commons Attribution-ShareAlike 2.1 Japan (CC BY-SA 2.1 JP).
+3. **Three.js Engine**:
+   - License: MIT License. Copyright (c) 2010-2026 Three.js authors.
+
+---
+
+## 18. Research Limitations & Medical Disclaimer
+
+> [!CAUTION]
+> **RESEARCH SOFTWARE PROTOTYPE — NOT A CERTIFIED MEDICAL DEVICE**
+> - **CardioVision AI is strictly a scientific research prototype and educational demonstration** developed for the IIT Mandi Multimodal AI Hackathon 2026.
+> - It is **not** cleared, certified, or approved as a medical device by the U.S. FDA, European CE, CDSCO, or any regulatory body.
+> - It has **not** undergone prospective randomized clinical trials or multi-center external clinical validation.
+> - Baseline models for LCX ($\text{ROC-AUC} = 0.584$) and RCA ($\text{ROC-AUC} = 0.652$) have limited discriminatory power on non-invasive data.
+> - The application does not perform patient-specific coronary lumen reconstruction or computational fluid dynamics.
+> - **This software must never be used as a standalone diagnostic system or to direct clinical treatment decisions.**
+
+---
+
+## 19. Hackathon Links & Deliverables
+
+- **Track**: Track A — Cardiovascular Risk Visualization & Prediction
+- **Event**: IIT Mandi Multimodal AI Hackathon 2026
+- **Architecture Documentation**: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- **Model Evaluation Report**: [`docs/MODEL_EVALUATION.md`](docs/MODEL_EVALUATION.md)
+- **Demonstration Video Script**: [`docs/DEMO_VIDEO_SCRIPT.md`](docs/DEMO_VIDEO_SCRIPT.md)
+- **Devpost Project Link**: `[Devpost Submission Placeholder]`
+- **Video Demonstration**: `[Demo Video Link Placeholder]`

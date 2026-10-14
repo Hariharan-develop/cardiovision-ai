@@ -1,25 +1,44 @@
 import os
+import sys
 import json
 import socket
 import urllib.parse
+from pathlib import Path
 import joblib
 import pandas as pd
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # -----------------------------------------------------------------------------
-# Load Trained Machine Learning Models & Feature Metadata
+# Base Directory & Module Path Configuration
 # -----------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-cad_model = joblib.load(os.path.join(BASE_DIR, "cad_model.pkl"))
-lad_model = joblib.load(os.path.join(BASE_DIR, "lad_model.pkl"))
-lcx_model = joblib.load(os.path.join(BASE_DIR, "lcx_model.pkl"))
-rca_model = joblib.load(os.path.join(BASE_DIR, "rca_model.pkl"))
+BACKEND_DIR = os.path.join(BASE_DIR, "backend")
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+
+for p in [BACKEND_DIR, BASE_DIR]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+def get_model_path(filename: str) -> str:
+    for candidate_dir in [MODELS_DIR, BACKEND_DIR, BASE_DIR]:
+        full_path = os.path.join(candidate_dir, filename)
+        if os.path.exists(full_path):
+            return full_path
+    return os.path.join(MODELS_DIR, filename)
+
+# -----------------------------------------------------------------------------
+# Load Trained Machine Learning Models & Feature Metadata
+# -----------------------------------------------------------------------------
+cad_model = joblib.load(get_model_path("cad_model.pkl"))
+lad_model = joblib.load(get_model_path("lad_model.pkl"))
+lcx_model = joblib.load(get_model_path("lcx_model.pkl"))
+rca_model = joblib.load(get_model_path("rca_model.pkl"))
 
 # Candidate models (experimental mode) and calibrated thresholds
-lcx_model_candidate = joblib.load(os.path.join(BASE_DIR, "lcx_model_candidate.pkl"))
-rca_model_candidate = joblib.load(os.path.join(BASE_DIR, "rca_model_candidate.pkl"))
+lcx_model_candidate = joblib.load(get_model_path("lcx_model_candidate.pkl"))
+rca_model_candidate = joblib.load(get_model_path("rca_model_candidate.pkl"))
 
-cand_thresh_file = os.path.join(BASE_DIR, "candidate_thresholds.json")
+cand_thresh_file = get_model_path("candidate_thresholds.json")
 candidate_thresholds = {"LCX": 0.45, "RCA": 0.40}
 if os.path.exists(cand_thresh_file):
     try:
@@ -33,23 +52,35 @@ CANDIDATE_RCA_THRESH = float(candidate_thresholds.get("RCA", 0.40))
 CANDIDATE_LCX_THRESH_PCT = f"{CANDIDATE_LCX_THRESH * 100.0:.1f}"
 CANDIDATE_RCA_THRESH_PCT = f"{CANDIDATE_RCA_THRESH * 100.0:.1f}"
 
-feature_columns = joblib.load(os.path.join(BASE_DIR, "feature_columns.pkl"))
-numeric_defaults = joblib.load(os.path.join(BASE_DIR, "numeric_defaults.pkl"))
+feature_columns = joblib.load(get_model_path("feature_columns.pkl"))
+numeric_defaults = joblib.load(get_model_path("numeric_defaults.pkl"))
 
 try:
-    from shap_service import get_all_shap_explanations
+    from backend.shap_service import get_all_shap_explanations
 except ImportError:
-    get_all_shap_explanations = None
+    try:
+        from shap_service import get_all_shap_explanations
+    except ImportError:
+        get_all_shap_explanations = None
 
-from patient_feature_snapshot import (
-    create_patient_feature_snapshot,
-    verify_snapshot_consistency,
-    InconsistentPayloadError,
-    PHYSIOLOGICAL_BOUNDS
-)
-
-from clinical_extractor import process_uploaded_document
-import history_service
+try:
+    from backend.patient_feature_snapshot import (
+        create_patient_feature_snapshot,
+        verify_snapshot_consistency,
+        InconsistentPayloadError,
+        PHYSIOLOGICAL_BOUNDS,
+    )
+    from backend.clinical_extractor import process_uploaded_document
+    from backend import history_service
+except ImportError:
+    from patient_feature_snapshot import (
+        create_patient_feature_snapshot,
+        verify_snapshot_consistency,
+        InconsistentPayloadError,
+        PHYSIOLOGICAL_BOUNDS,
+    )
+    from clinical_extractor import process_uploaded_document
+    import history_service
 
 def compute_predictions(params, strict=False):
     mode = str(params.get("model_mode", "standard")).lower()
@@ -205,27 +236,31 @@ class PredictionAPIHandler(BaseHTTPRequestHandler):
 
         if clean_path.startswith("/models/"):
             rel_name = urllib.parse.unquote(clean_path[len("/models/"):])
-            models_dir = os.path.join(BASE_DIR, "assets", "bodyparts3d")
-            file_path = os.path.normpath(os.path.join(models_dir, rel_name))
-            if not os.path.exists(file_path):
-                models_dir = os.path.join(BASE_DIR, "3d-test", "models")
-                file_path = os.path.normpath(os.path.join(models_dir, rel_name))
-            if os.path.exists(file_path) and file_path.startswith(models_dir):
-                self._serve_file(file_path, "text/plain; charset=utf-8")
-                return
-            else:
-                self.send_response(404)
-                self.end_headers()
-                return
+            candidate_dirs = [
+                os.path.join(BASE_DIR, "assets", "heart_3d"),
+                os.path.join(BASE_DIR, "assets", "bodyparts3d"),
+                os.path.join(BASE_DIR, "3d-test", "models"),
+            ]
+            for cdir in candidate_dirs:
+                file_path = os.path.normpath(os.path.join(cdir, rel_name))
+                if os.path.exists(file_path):
+                    self._serve_file(file_path, "text/plain; charset=utf-8")
+                    return
+            self.send_response(404)
+            self.end_headers()
+            return
         elif clean_path in ["/dashboard", "/cardiovision_exact_dashboard.html"]:
-            dash_path = os.path.join(BASE_DIR, "cardiovision_exact_dashboard.html")
+            dash_path = os.path.join(BASE_DIR, "frontend", "cardiovision_exact_dashboard.html")
+            if not os.path.exists(dash_path):
+                dash_path = os.path.join(BASE_DIR, "cardiovision_exact_dashboard.html")
             self._serve_file(dash_path, "text/html; charset=utf-8")
             return
         elif any(clean_path.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.ico']):
             img_name = os.path.basename(clean_path)
             candidates = [
-                os.path.join(BASE_DIR, img_name),
+                os.path.join(BASE_DIR, "frontend", "assets", img_name),
                 os.path.join(BASE_DIR, "assets", img_name),
+                os.path.join(BASE_DIR, img_name),
                 os.path.join(BASE_DIR, clean_path.lstrip("/")),
             ]
             for cand in candidates:
@@ -235,10 +270,17 @@ class PredictionAPIHandler(BaseHTTPRequestHandler):
                     self._serve_file(cand, mime)
                     return
         elif clean_path == "/viewer.html" or clean_path == "/3d-viewer":
-            v_path = os.path.join(BASE_DIR, "components", "heart_viewer.html")
-            if not os.path.exists(v_path):
-                v_path = os.path.join(BASE_DIR, "3d-test", "viewer.html")
-            self._serve_file(v_path, "text/html; charset=utf-8")
+            v_candidates = [
+                os.path.join(BASE_DIR, "frontend", "components", "heart_viewer.html"),
+                os.path.join(BASE_DIR, "components", "heart_viewer.html"),
+                os.path.join(BASE_DIR, "3d-test", "viewer.html"),
+            ]
+            for v_path in v_candidates:
+                if os.path.exists(v_path):
+                    self._serve_file(v_path, "text/html; charset=utf-8")
+                    return
+            self.send_response(404)
+            self.end_headers()
             return
         elif clean_path == "/mesh_manifest.csv":
             m_path = os.path.join(BASE_DIR, "3d-test", "mesh_manifest.csv")
@@ -375,8 +417,10 @@ class PredictionAPIHandler(BaseHTTPRequestHandler):
         try:
             from pdf_generator import generate_pdf_report
             snapshot = record.get("snapshot", {})
-            patient_data = dict(snapshot.get("features", {}))
-            patient_data.update(snapshot.get("patient_data", {}))
+            patient_data = dict(snapshot.get("patient_data", {}))
+            for k, v in snapshot.get("features", {}).items():
+                if k not in patient_data:
+                    patient_data[k] = v
             patient_data["id"] = record.get("patient_id")
             patient_data["displayName"] = record.get("patient_name")
             patient_data["model_mode"] = record.get("model_mode", "standard")

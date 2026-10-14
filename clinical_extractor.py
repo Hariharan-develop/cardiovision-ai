@@ -149,7 +149,7 @@ CLINICAL_PATTERNS = {
         "unit": "years",
         "patterns": [
             r"(?<![-_A-Za-z0-9])(?:patient\s+age|age)\s*[:=\-|]?\s*(?:\n|\r|\t)?\s*([1-9]\d{0,2})\s*(?:y(?:ears?)?(?:\s*old)?)?(?![-_A-Za-z0-9])",
-            r"\b([1-9]\d{0,2})\s*(?:years?\s*old|y[\s\/\-]o)\b",
+            r"\b([1-9]\d{0,2})[-\s]*(?:years?[-\s]*old|y[\s\/\-]o)\b",
         ],
         "type": "age",
         "bounds": (1.0, 120.0)

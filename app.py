@@ -142,17 +142,27 @@ st.html(
 # -----------------------------------------------------------------------------
 # 3. Load Trained Machine Learning Models & Feature Metadata
 # -----------------------------------------------------------------------------
-cad_model = joblib.load("cad_model.pkl")
-lad_model = joblib.load("lad_model.pkl")
-lcx_model = joblib.load("lcx_model.pkl")
-rca_model = joblib.load("rca_model.pkl")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+
+def get_model_path(fname):
+    for d in [MODELS_DIR, BASE_DIR]:
+        p = os.path.join(d, fname)
+        if os.path.exists(p):
+            return p
+    return os.path.join(MODELS_DIR, fname)
+
+cad_model = joblib.load(get_model_path("cad_model.pkl"))
+lad_model = joblib.load(get_model_path("lad_model.pkl"))
+lcx_model = joblib.load(get_model_path("lcx_model.pkl"))
+rca_model = joblib.load(get_model_path("rca_model.pkl"))
 
 # Candidate models (experimental mode) and calibrated thresholds
-lcx_model_candidate = joblib.load("lcx_model_candidate.pkl")
-rca_model_candidate = joblib.load("rca_model_candidate.pkl")
+lcx_model_candidate = joblib.load(get_model_path("lcx_model_candidate.pkl"))
+rca_model_candidate = joblib.load(get_model_path("rca_model_candidate.pkl"))
 
 candidate_thresholds = {"LCX": 0.45, "RCA": 0.40}
-cand_thresh_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "candidate_thresholds.json")
+cand_thresh_file = get_model_path("candidate_thresholds.json")
 if os.path.exists(cand_thresh_file):
     try:
         with open(cand_thresh_file, "r", encoding="utf-8") as _cf:
@@ -165,8 +175,8 @@ CANDIDATE_RCA_THRESH = float(candidate_thresholds.get("RCA", 0.40))
 CANDIDATE_LCX_THRESH_PCT = f"{CANDIDATE_LCX_THRESH * 100.0:.1f}"
 CANDIDATE_RCA_THRESH_PCT = f"{CANDIDATE_RCA_THRESH * 100.0:.1f}"
 
-feature_columns = joblib.load("feature_columns.pkl")
-numeric_defaults = joblib.load("numeric_defaults.pkl")
+feature_columns = joblib.load(get_model_path("feature_columns.pkl"))
+numeric_defaults = joblib.load(get_model_path("numeric_defaults.pkl"))
 
 # -----------------------------------------------------------------------------
 # 4. Extract Query Parameters (Interactive Form Sync from Dashboard UI)
@@ -468,7 +478,9 @@ else:
 # -----------------------------------------------------------------------------
 # 7. Render 3D WebGL Coronary Viewer Content for 3D Tab
 # -----------------------------------------------------------------------------
-heart_viewer_path = os.path.join(os.path.dirname(__file__), "components", "heart_viewer.html")
+heart_viewer_path = os.path.join(os.path.dirname(__file__), "frontend", "components", "heart_viewer.html")
+if not os.path.exists(heart_viewer_path):
+    heart_viewer_path = os.path.join(os.path.dirname(__file__), "components", "heart_viewer.html")
 if os.path.exists(heart_viewer_path):
     with open(heart_viewer_path, "r", encoding="utf-8") as _hf:
         viewer_raw = _hf.read()
@@ -491,7 +503,9 @@ else:
 # -----------------------------------------------------------------------------
 # 8. Load Exact UI Template & Inject Dynamic Values
 # -----------------------------------------------------------------------------
-template_path = os.path.join(os.path.dirname(__file__), "cardiovision_exact_dashboard.html")
+template_path = os.path.join(os.path.dirname(__file__), "frontend", "cardiovision_exact_dashboard.html")
+if not os.path.exists(template_path):
+    template_path = os.path.join(os.path.dirname(__file__), "cardiovision_exact_dashboard.html")
 with open(template_path, "r", encoding="utf-8") as _tf:
     html_page = _tf.read()
 

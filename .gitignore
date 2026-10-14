@@ -1,0 +1,73 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+
+# Local SQLite databases and session journals
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+*.sqlite3
+data/*.db
+data/*.db-journal
+
+# Temporary test outputs, verification reports, and generated artifacts
+test_output/
+test_artifacts/
+verification_reports/
+tests/test_reports/
+output/
+*.log
+
+# Keep synthetic test fixtures tracked
+!tests/fixtures/
+!tests/fixtures/*.pdf
+
+# Local backups and IDE caches
+*backup*
+*.bak
+.idea/
+.vscode/
+.gemini/
+.DS_Store
+Thumbs.db

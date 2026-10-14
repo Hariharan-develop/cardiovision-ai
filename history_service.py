@@ -130,8 +130,10 @@ def save_evaluation(
             }
 
         # Snapshot package including clinical input parameters and features
+        full_patient_data = dict(predictions.get("patient_data") or {})
+        full_patient_data.update(patient_data or {})
         snapshot_package = {
-            "patient_data": patient_data,
+            "patient_data": full_patient_data,
             "features": predictions.get("features", {}),
             "snapshot_hash": snapshot_hash
         }

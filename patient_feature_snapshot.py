@@ -18,8 +18,19 @@ import pandas as pd
 import joblib
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FEATURE_COLUMNS = joblib.load(os.path.join(BASE_DIR, "feature_columns.pkl"))
-NUMERIC_DEFAULTS = joblib.load(os.path.join(BASE_DIR, "numeric_defaults.pkl"))
+
+def _find_model_file(fname: str) -> str:
+    candidates = [
+        os.path.join(BASE_DIR, "models", fname),
+        os.path.join(BASE_DIR, fname),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return os.path.join(BASE_DIR, "models", fname)
+
+FEATURE_COLUMNS = joblib.load(_find_model_file("feature_columns.pkl"))
+NUMERIC_DEFAULTS = joblib.load(_find_model_file("numeric_defaults.pkl"))
 
 # Model decision thresholds
 STANDARD_THRESHOLDS = {"CAD": 0.50, "LAD": 0.50, "LCX": 0.50, "RCA": 0.50}
@@ -417,14 +428,14 @@ def verify_snapshot_consistency(
                 f"patient snapshot mode '{snapshot.model_mode}'. Stale/cached evaluation detected."
             )
         # Load active models
-        cad_model = joblib.load(os.path.join(BASE_DIR, "cad_model.pkl"))
-        lad_model = joblib.load(os.path.join(BASE_DIR, "lad_model.pkl"))
+        cad_model = joblib.load(_find_model_file("cad_model.pkl"))
+        lad_model = joblib.load(_find_model_file("lad_model.pkl"))
         if snapshot.model_mode == "candidate":
-            lcx_model = joblib.load(os.path.join(BASE_DIR, "lcx_model_candidate.pkl"))
-            rca_model = joblib.load(os.path.join(BASE_DIR, "rca_model_candidate.pkl"))
+            lcx_model = joblib.load(_find_model_file("lcx_model_candidate.pkl"))
+            rca_model = joblib.load(_find_model_file("rca_model_candidate.pkl"))
         else:
-            lcx_model = joblib.load(os.path.join(BASE_DIR, "lcx_model.pkl"))
-            rca_model = joblib.load(os.path.join(BASE_DIR, "rca_model.pkl"))
+            lcx_model = joblib.load(_find_model_file("lcx_model.pkl"))
+            rca_model = joblib.load(_find_model_file("rca_model.pkl"))
 
         def get_model_prob(model, target_label):
             classes = list(model.classes_)
