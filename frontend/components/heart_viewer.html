@@ -2452,7 +2452,16 @@ let failures = 0;
 
 const MODEL_BASE_URL = (function() {
   if (window.CARDIO_MODEL_BASE) return window.CARDIO_MODEL_BASE;
+  const paramBase = (typeof URLSearchParams !== 'undefined') ? new URLSearchParams(window.location.search).get('model_base') : null;
+  if (paramBase) return paramBase.endsWith('/') ? paramBase : paramBase + '/';
   if (window.location.port === '8000') return './models/';
+  // When running on Render or any public hostname, models are served relative to the API server origin
+  if (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return '/models/';
+  }
+  if (window.location.protocol === 'https:') {
+    return 'https://cardiovision-ai-l3vg.onrender.com/models/';
+  }
   if (window.location.port === '8502') return '/models/';
   return 'http://127.0.0.1:8502/models/';
 })();

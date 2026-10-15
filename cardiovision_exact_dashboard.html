@@ -3359,22 +3359,60 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{display:none!important;width:0!i
   <!-- 5. 3D VISUALIZATION VIEW -->
   <div id="view-viewer3d" class="mainView" style="display:none;">
     <div class="viewContainer">
-      <div class="viewTitleBox">
-        <svg viewBox="0 0 24 24" style="width:36px;height:36px;color:#1759e8;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>
-        <div>
-          <h2>Interactive 3D Coronary Anatomy</h2>
-          <p>WebGL Three.js 106-mesh anatomical assembly with live multi-vessel prediction telemetry and vascular isolation.</p>
+      <div class="viewTitleBox" style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <svg viewBox="0 0 24 24" style="width:36px;height:36px;color:#1759e8;flex-shrink:0;" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>
+          <div>
+            <h2>Interactive 3D Coronary Anatomy</h2>
+            <p>WebGL Three.js 106-mesh anatomical assembly with live multi-vessel prediction telemetry and vascular isolation.</p>
+          </div>
         </div>
+        <button onclick="reload3DViewer(true)" id="btnReloadViewer3d" title="Reload 3D Anatomical Scene" style="display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:#ffffff;border:1px solid #d1d5db;color:#1e293b;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.06);transition:all 0.15s ease;" onmouseover="this.style.background='#f8fafc';this.style.borderColor='#94a3b8';" onmouseout="this.style.background='#ffffff';this.style.borderColor='#d1d5db';">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;color:#1759e8;" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+          Reload 3D Anatomy
+        </button>
       </div>
-      <div style="background:#080d1a;border-radius:18px;overflow:hidden;border:1px solid #1a2b4a;height:calc(100vh - 160px);min-height:640px;max-height:840px;position:relative;">
-        <iframe id="viewerIframe" src="/viewer.html" style="width:100%;height:100%;border:none;display:block;" title="CardioVision 3D Anatomical Heart Viewer"></iframe>
+      <div id="viewer3dContainer" style="background:#080d1a;border-radius:18px;overflow:hidden;border:1px solid #1a2b4a;height:calc(100vh - 160px);min-height:640px;max-height:840px;position:relative;">
+        <div id="viewer3dStatusOverlay" style="display:none;position:absolute;inset:0;background:#080d1a;z-index:25;flex-direction:column;align-items:center;justify-content:center;color:#e2e8f0;text-align:center;padding:24px;">
+          <div style="width:44px;height:44px;border:3px solid rgba(23,89,232,0.2);border-top-color:#1759e8;border-radius:50%;animation:spinViewer3d 1s linear infinite;margin-bottom:14px;"></div>
+          <h3 id="viewer3dStatusTitle" style="font-size:16px;font-weight:700;color:#ffffff;margin-bottom:6px;">Connecting to 3D Anatomy Engine...</h3>
+          <p id="viewer3dStatusDesc" style="font-size:12.5px;color:#94a3b8;max-width:440px;margin-bottom:16px;line-height:1.5;">Waiting for the 3D anatomical model service on port 8502. The 106-mesh coronary assembly will appear automatically once ready.</p>
+          <button onclick="reload3DViewer(true)" style="padding:8px 18px;background:#1759e8;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Retry Connection</button>
+        </div>
+        <style>@keyframes spinViewer3d { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+        <iframe id="viewerIframe" src="{{CARDIOVISION_VIEWER_URL}}" style="width:100%;height:100%;border:none;display:block;" title="CardioVision 3D Anatomical Heart Viewer"></iframe>
         <script>
           (function() {
             try {
               var ifr = document.getElementById('viewerIframe');
-              if (ifr && window.location.port !== '8502' && ifr.src.indexOf(':8502') === -1) {
-                var host = window.location.hostname || '127.0.0.1';
-                ifr.src = (window.location.protocol === 'https:' ? 'https:' : 'http:') + '//' + host + ':8502/viewer.html';
+              if (!ifr) return;
+              var curSrc = ifr.getAttribute('src') || '';
+              var isRemote = (function() {
+                try { if (window.location && window.location.protocol === 'https:') return true; } catch(e) {}
+                try { if (window.parent && window.parent.location && window.parent.location.protocol === 'https:') return true; } catch(e) {}
+                try {
+                  var h = (window.location && window.location.hostname) || '';
+                  if (h && h !== 'localhost' && h !== '127.0.0.1' && h !== '0.0.0.0') return true;
+                } catch(e) {}
+                try {
+                  var ph = (window.parent && window.parent.location && window.parent.location.hostname) || '';
+                  if (ph && ph !== 'localhost' && ph !== '127.0.0.1' && ph !== '0.0.0.0') return true;
+                } catch(e) {}
+                return false;
+              })();
+
+              if (isRemote) {
+                var base = (window.CARDIOVISION_API_URL && window.CARDIOVISION_API_URL.indexOf('http') === 0 && !window.CARDIOVISION_API_URL.startsWith('{{'))
+                  ? window.CARDIOVISION_API_URL.replace(/\/+$/, '')
+                  : 'https://cardiovision-ai-l3vg.onrender.com';
+                if (base.includes('127.0.0.1') || base.includes('localhost')) {
+                  base = 'https://cardiovision-ai-l3vg.onrender.com';
+                }
+                ifr.src = base + '/3d-viewer';
+              } else {
+                if (!curSrc || curSrc.startsWith('{{') || curSrc === '/viewer.html' || curSrc === '/3d-viewer') {
+                  ifr.src = 'http://127.0.0.1:8502/3d-viewer';
+                }
               }
             } catch(e) {}
           })();
@@ -3548,6 +3586,36 @@ html::-webkit-scrollbar,body::-webkit-scrollbar{display:none!important;width:0!i
 </main>
 </div></div>
 <script>
+// CardioVision Public & Local API Configuration
+window.CARDIOVISION_API_URL = window.CARDIOVISION_API_URL || "{{CARDIOVISION_API_URL}}";
+function isCardioVisionRemote() {
+  try { if (window.location && window.location.protocol === 'https:') return true; } catch(e) {}
+  try { if (window.parent && window.parent.location && window.parent.location.protocol === 'https:') return true; } catch(e) {}
+  try {
+    var h = (window.location && window.location.hostname) || '';
+    if (h && h !== 'localhost' && h !== '127.0.0.1' && h !== '0.0.0.0') return true;
+  } catch(e) {}
+  try {
+    var ph = (window.parent && window.parent.location && window.parent.location.hostname) || '';
+    if (ph && ph !== 'localhost' && ph !== '127.0.0.1' && ph !== '0.0.0.0') return true;
+  } catch(e) {}
+  return false;
+}
+
+const API_BASE_URL = (function() {
+  if (window.CARDIOVISION_API_URL && window.CARDIOVISION_API_URL.indexOf('http') === 0 && !window.CARDIOVISION_API_URL.startsWith('{{')) {
+    var u = window.CARDIOVISION_API_URL.replace(/\/+$/, '');
+    if (isCardioVisionRemote() && (u.includes('127.0.0.1') || u.includes('localhost'))) {
+      return 'https://cardiovision-ai-l3vg.onrender.com';
+    }
+    return u;
+  }
+  if (isCardioVisionRemote()) {
+    return 'https://cardiovision-ai-l3vg.onrender.com';
+  }
+  return 'http://127.0.0.1:8502';
+})();
+
 // Responsive layout handles fitting natively with fixed sidebar and fluid main area
 function toggleDetail(el){
   const n = el.nextElementSibling;
@@ -3616,6 +3684,7 @@ function switchNav(viewId){
     loadHistoryEvaluations();
   }
   if (viewId === 'viewer3d') {
+    checkAndAutoRecover3DViewer();
     sync3DViewerState();
     try {
       const viewer = document.getElementById('viewerIframe') || document.getElementById('heartViewerFrame');
@@ -3649,15 +3718,79 @@ document.addEventListener('DOMContentLoaded', function() {
   } catch(e) {}
 });
 
+function getViewer3DTargetUrl() {
+  if (typeof API_BASE_URL !== 'undefined' && API_BASE_URL && API_BASE_URL.indexOf('http') === 0 && !API_BASE_URL.startsWith('{{')) {
+    return API_BASE_URL.replace(/\/+$/, '') + '/3d-viewer';
+  }
+  if (typeof isCardioVisionRemote === 'function' && isCardioVisionRemote()) {
+    return 'https://cardiovision-ai-l3vg.onrender.com/3d-viewer';
+  }
+  return 'http://127.0.0.1:8502/3d-viewer';
+}
+
+function reload3DViewer(force) {
+  var ifr = document.getElementById('viewerIframe');
+  var overlay = document.getElementById('viewer3dStatusOverlay');
+  if (!ifr) return;
+  var targetUrl = getViewer3DTargetUrl();
+  if (force) {
+    var sep = targetUrl.indexOf('?') >= 0 ? '&' : '?';
+    ifr.src = targetUrl + sep + '_t=' + Date.now();
+  } else {
+    ifr.src = targetUrl;
+  }
+  if (overlay) overlay.style.display = 'none';
+  setTimeout(sync3DViewerState, 350);
+}
+
+function checkAndAutoRecover3DViewer() {
+  var ifr = document.getElementById('viewerIframe');
+  var overlay = document.getElementById('viewer3dStatusOverlay');
+  if (!ifr) return;
+
+  var healthUrl = (typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://127.0.0.1:8502') + '/api/health';
+  fetch(healthUrl, { cache: 'no-store' })
+    .then(function(res) {
+      if (res.ok) {
+        if (overlay) overlay.style.display = 'none';
+        var curSrc = ifr.getAttribute('src') || '';
+        if (!curSrc || curSrc.startsWith('{{') || curSrc === '/viewer.html' || curSrc === '/3d-viewer') {
+          ifr.src = getViewer3DTargetUrl();
+        }
+      } else {
+        throw new Error('Health check non-200');
+      }
+    })
+    .catch(function(err) {
+      if (overlay) {
+        overlay.style.display = 'flex';
+        var pollTimer = setInterval(function() {
+          fetch(healthUrl, { cache: 'no-store' })
+            .then(function(r) {
+              if (r.ok) {
+                clearInterval(pollTimer);
+                overlay.style.display = 'none';
+                reload3DViewer(true);
+              }
+            })
+            .catch(function() {});
+        }, 1500);
+        setTimeout(function() { clearInterval(pollTimer); }, 25000);
+      }
+    });
+}
+
 function sync3DViewerState() {
   try {
     const viewer = document.getElementById('viewerIframe') || document.getElementById('heartViewerFrame');
     if (!viewer || !viewer.contentWindow) return;
     const st = sessionStorage.getItem('cardiovision_state');
     if (st === 'awaiting') {
-      if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.reset) {
-        viewer.contentWindow.CardioVision3D.reset();
-      }
+      try {
+        if (viewer.contentWindow.CardioVision3D && viewer.contentWindow.CardioVision3D.reset) {
+          viewer.contentWindow.CardioVision3D.reset();
+        }
+      } catch(err) {}
       viewer.contentWindow.postMessage({ type: 'RESET_CARDIO_DATA' }, '*');
     } else {
       const lastPred = sessionStorage.getItem('cardiovision_last_prediction');
@@ -4981,7 +5114,7 @@ async function exportClinicalReport(){
   };
 
   // Attempt direct backend download
-  const endpoints = ['http://127.0.0.1:8502/api/generate-pdf', '/api/generate-pdf'];
+  const endpoints = [API_BASE_URL + '/api/generate-pdf', '/api/generate-pdf'];
   let downloaded = false;
 
   for (const ep of endpoints) {
@@ -6157,7 +6290,7 @@ function predictRisk(){
   payload['model_mode'] = currentModelMode;
 
   // Call background API for instant in-place prediction without reloading
-  fetch('http://127.0.0.1:8502/api/predict', {
+  fetch(API_BASE_URL + '/api/predict', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -6493,7 +6626,7 @@ document.addEventListener('DOMContentLoaded', function(){
         initPayload[key] = el.value;
       }
     });
-    fetch('http://127.0.0.1:8502/api/predict', {
+    fetch(API_BASE_URL + '/api/predict', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(initPayload)
@@ -6632,7 +6765,7 @@ function uploadPatientReportFile(file) {
     const rawData = e.target.result;
     const base64Data = rawData.split(',')[1] || rawData;
 
-    fetch('http://127.0.0.1:8502/api/upload-report', {
+    fetch(API_BASE_URL + '/api/upload-report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -6975,7 +7108,7 @@ function loadHistoryEvaluations() {
   if (empty) empty.style.display = 'none';
   if (table) table.style.display = 'none';
 
-  fetch('http://127.0.0.1:8502/api/history?limit=100')
+  fetch(API_BASE_URL + '/api/history?limit=100')
     .then(res => res.json())
     .then(data => {
       if (loading) loading.style.display = 'none';
@@ -7353,14 +7486,14 @@ function loadHistoryPatient(evalId) {
 }
 
 function exportHistoryPdf(evalId) {
-  window.open(`http://127.0.0.1:8502/api/history/${evalId}/export-pdf`, '_blank');
+  window.open(`${API_BASE_URL}/api/history/${evalId}/export-pdf`, '_blank');
 }
 
 function deleteHistoryEvaluation(evalId) {
   if (!confirm('Are you sure you want to permanently delete this prediction record from the history audit log?')) {
     return;
   }
-  fetch(`http://127.0.0.1:8502/api/history/${evalId}`, { method: 'DELETE' })
+  fetch(`${API_BASE_URL}/api/history/${evalId}`, { method: 'DELETE' })
     .then(res => res.json())
     .then(data => {
       if (data.success) {
