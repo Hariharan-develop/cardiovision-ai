@@ -649,9 +649,12 @@ class PredictionAPIHandler(BaseHTTPRequestHandler):
         # Silent logging
         pass
 
-def run_server(port=8502):
-    server = HTTPServer(("127.0.0.1", port), PredictionAPIHandler)
+def run_server():
+    port = int(os.environ.get("PORT", 8502))
+    server = HTTPServer(("0.0.0.0", port), PredictionAPIHandler)
+    print(f"CardioVision API running on port {port}", flush=True)
     server.serve_forever()
 
+
 if __name__ == "__main__":
-    run_server(8502)
+    run_server()
