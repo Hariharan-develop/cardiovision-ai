@@ -22,13 +22,42 @@ except ImportError:
     except ImportError:
         get_all_shap_explanations = None
 
+# API & 3D Viewer Server Configuration (Render Production vs Localhost:8502 Fallback)
+is_render_env = bool(
+    os.environ.get("RENDER")
+    or os.environ.get("RENDER_SERVICE_ID")
+    or os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+    or os.environ.get("IS_RENDER")
+    or (os.environ.get("PORT") and os.environ.get("PORT") not in ["8501", "8502"])
+)
+env_api_url = os.environ.get("CARDIOVISION_API_URL", "").strip().rstrip("/")
+
+if env_api_url:
+    CARDIOVISION_API_URL = env_api_url
+elif is_render_env or sys.platform != "win32":
+    CARDIOVISION_API_URL = "https://cardiovision-ai-l3vg.onrender.com"
+else:
+    CARDIOVISION_API_URL = "http://127.0.0.1:8502"
+
+CARDIOVISION_VIEWER_URL = f"{CARDIOVISION_API_URL}/3d-viewer"
+
 def ensure_local_api():
+    if CARDIOVISION_API_URL.startswith("https://") or is_render_env or sys.platform != "win32":
+        return
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             if s.connect_ex(('127.0.0.1', 8502)) != 0:
                 script_path = os.path.join(os.path.dirname(__file__), "api_server.py")
                 if os.path.exists(script_path):
                     subprocess.Popen([sys.executable, script_path], cwd=os.path.dirname(__file__))
+                    # Wait briefly for port 8502 to bind so the initial iframe load succeeds immediately
+                    import time
+                    start_t = time.time()
+                    while time.time() - start_t < 3.5:
+                        time.sleep(0.25)
+                        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as test_s:
+                            if test_s.connect_ex(('127.0.0.1', 8502)) == 0:
+                                break
     except Exception:
         pass
 
@@ -689,15 +718,27 @@ replacements = {
     "{{RCA_PERF_ACC}}": rca_perf_acc,
     "{{RCA_PERF_F1}}": rca_perf_f1,
     "{{RCA_PERF_AUC}}": rca_perf_auc,
+    # Public & Local API Configuration
+    "{{CARDIOVISION_API_URL}}": CARDIOVISION_API_URL,
+    "{{CARDIOVISION_VIEWER_URL}}": CARDIOVISION_VIEWER_URL,
 }
 
 for k, v in replacements.items():
     clean_k = k.strip("{}")
-    html_page = html_page.replace(f"{{{clean_k}}}", str(v))
     html_page = html_page.replace(f"{{{{{clean_k}}}}}", str(v))
+    html_page = html_page.replace(f"{{{clean_k}}}", str(v))
 
-# Route 3D viewer iframe directly to api_server (port 8502) to prevent Streamlit (port 8501) 404s
-html_page = html_page.replace('src="/viewer.html"', 'src="http://127.0.0.1:8502/viewer.html"')
+# Route 3D viewer iframe directly to Render 3D viewer (or localhost:8502 for local dev)
+html_page = html_page.replace('src="/viewer.html"', f'src="{CARDIOVISION_VIEWER_URL}"')
+html_page = html_page.replace('src="{{CARDIOVISION_VIEWER_URL}}"', f'src="{CARDIOVISION_VIEWER_URL}"')
+html_page = html_page.replace('src="{CARDIOVISION_VIEWER_URL}"', f'src="{CARDIOVISION_VIEWER_URL}"')
+html_page = html_page.replace('src="http://127.0.0.1:8502/viewer.html"', f'src="{CARDIOVISION_VIEWER_URL}"')
+html_page = html_page.replace('src="http://127.0.0.1:8502/3d-viewer"', f'src="{CARDIOVISION_VIEWER_URL}"')
+
+# In production / Render mode, rewrite any remaining localhost:8502 API calls with the public Render API URL
+if CARDIOVISION_API_URL != "http://127.0.0.1:8502":
+    html_page = html_page.replace("http://127.0.0.1:8502", CARDIOVISION_API_URL)
+    html_page = html_page.replace("http://localhost:8502", CARDIOVISION_API_URL)
 
 # -----------------------------------------------------------------------------
 # 9. Embed Fullscreen Dashboard in Streamlit
